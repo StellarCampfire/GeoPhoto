@@ -6,12 +6,12 @@ from PyQt5.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout, QP
 from PyQt5.QtCore import Qt, QEvent, QTimer
 from PyQt5.QtGui import QPixmap
 
-DATA_FOLDER_PATH = 'data'
+DATA_FOLDER_PATH = os.path.join("~", ".geo_photo")
 
 
 class GeoPhotoDBManager:
     def __init__(self):
-        db_path = os.path.join("data", "geo_photo_database.db")
+        db_path = os.path.join(DATA_FOLDER_PATH, "geo_photo_database.db")
         self.connection = sqlite3.connect(db_path)
         self.cursor = self.connection.cursor()
         self.setup_database()
@@ -358,6 +358,52 @@ class CustomIntervalSpinBox(QHBoxLayout):
         button.setStyleSheet("background-color: lightgray;")
         QTimer.singleShot(100, lambda: button.setStyleSheet(original_style_sheet))
 
+
+class PhotoView(BaseInterfaceWidget):
+    def __init__(self, database_manager, project, well, interval, photo, switch_interface_callback, parent=None):
+        super().__init__(parent)
+        self.database_manager = database_manager
+        self.project = project
+        self.well = well
+        self.interval = interval
+        self.photo = photo
+        self.switch_interface_callback = switch_interface_callback
+        self.setup_ui()
+        self.install_focus_event_filters()
+
+    def setup_ui(self):
+        layout = QVBoxLayout(self)
+
+        self.create_back_button(lambda: self.switch_interface_callback(
+            IntervalWidget,
+            self.database_manager,
+            self.project,
+            self.well,
+            self.interval))
+
+        photo_label = QLabel()
+        pixmap = QPixmap(self.photo["path"])
+        photo_label.setPixmap(pixmap.scaled(photo_label.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        layout.addWidget(photo_label)
+
+    #     self.photo_label = QLabel()
+    #     self.photo_label.setAlignment(Qt.AlignCenter)  # Центрируем изображение
+    #     layout.addWidget(self.photo_label)
+    #     self.update_photo()
+    #
+    # def update_photo(self):
+    #     # Загрузка и масштабирование изображения с учетом текущего размера QLabel
+    #     pixmap = QPixmap(self.photo["path"])
+    #     self.photo_label.setPixmap(
+    #         pixmap.scaled(self.photo_label.width(), self.photo_label.height(), Qt.KeepAspectRatio,
+    #                       Qt.SmoothTransformation))
+    #
+    # def resizeEvent(self, event):
+    #     # Обновляем изображение при изменении размера окна
+    #     self.update_photo()
+    #     super().resizeEvent(event)
+
+
 class PhotoReviewWidget(BaseInterfaceWidget):
     def __init__(self, database_manager, project, well, interval_from, interval_to, photos, switch_interface_callback, parent=None):
         super().__init__(parent)
@@ -456,13 +502,22 @@ class IntervalWidget(BaseInterfaceWidget):
         photos = self.database_manager.get_all_photos_by_interval_id(self.interval["id"])
         for photo in photos:
             photo_button = FocusButton(photo["path"], scroll_container)
-            # well_button.clicked.connect(lambda checked, name=button.text(): self.openProjectInterface(name))
+            photo_button.clicked.connect(
+                lambda _, p=photo: self.switch_interface_callback(
+                    PhotoView,
+                    self.database_manager,
+                    self.project,
+                    self.well,
+                    self.interval,
+                    p))
             scroll_layout.addWidget(photo_button)
             photo_button.installEventFilter(self)
             photo_button.setStyleSheet("""
                                                 QPushButton:focus { background-color: blue; color: white; }
                                             """)
             self.focusable_elements.append(photo_button)
+
+        print(self.focusable_elements)
 
 
 class CreateIntervalWidget(BaseInterfaceWidget):
@@ -576,9 +631,8 @@ class WellWidget(BaseInterfaceWidget):
             interval_button = FocusButton(str(interval["interval_from"]) + ' - ' + str(interval["interval_to"]),
                                           scroll_container)
             interval_button.clicked.connect(
-                lambda: self.switch_interface_callback(IntervalWidget, self.database_manager, self.project, self.well,
-                                                       interval)
-            )
+                lambda _, i=interval: self.switch_interface_callback(
+                    IntervalWidget, self.database_manager, self.project, self.well, i))
             scroll_layout.addWidget(interval_button)
             interval_button.installEventFilter(self)
             interval_button.setStyleSheet("""
@@ -672,9 +726,7 @@ class CreateProjectWidget(BaseInterfaceWidget):
         self.switch_interface_callback(
             ProjectWidget,
             self.database_manager,
-            new_project,
-            switch_interface_callback=self.switch_interface_callback,
-            parent=None)
+            new_project)
 
 
 class ProjectWidget(BaseInterfaceWidget):
@@ -720,8 +772,7 @@ class ProjectWidget(BaseInterfaceWidget):
         for well in wells:
             well_button = FocusButton(well["name"], scroll_container)
             well_button.clicked.connect(
-                lambda: self.switch_interface_callback(WellWidget, self.database_manager, self.project, well)
-            )
+                lambda _, w=well: self.switch_interface_callback(WellWidget, self.database_manager, self.project, w))
             scroll_layout.addWidget(well_button)
             well_button.setStyleSheet("""
                                         QPushButton:focus { background-color: blue; color: white; }
@@ -763,7 +814,7 @@ class ChooseProjectWidget(BaseInterfaceWidget):
         for project in projects:
             project_button = FocusButton(project["name"], scroll_container)
             project_button.clicked.connect(
-                lambda: self.switch_interface_callback(ProjectWidget, self.database_manager, project))
+                lambda _, p=project: self.switch_interface_callback(ProjectWidget, self.database_manager, p))
             scroll_layout.addWidget(project_button)
             project_button.setStyleSheet("""
                                 QPushButton:focus { background-color: blue; color: white; }
