@@ -1,5 +1,6 @@
 import os
 import sys
+import logging
 from enum import Enum, auto
 import sqlite3
 from PyQt5.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout, QPushButton,
@@ -8,11 +9,22 @@ from PyQt5.QtCore import Qt, QEvent, QTimer
 from PyQt5.QtGui import QPixmap
 
 DATA_FOLDER_PATH = os.path.join("~", ".geo_photo")
+INTERVAL_STEP = 0.5
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', filename='geo_photo_app.log')
+
 
 
 class IntervalCondition(Enum):
-    DRY = auto()  # Сухой
-    WET = auto()  # Мокрый
+    DRY = auto()
+    WET = auto()
+
+
+class IntervalSettings:
+    def __init__(self, interval_from=0.0, interval_to=INTERVAL_STEP, is_marked=False, condition=IntervalCondition.WET):
+        self.interval_from = interval_from
+        self.interval_to = interval_to
+        self.is_marked = is_marked
+        self.condition = condition
 
 
 class GeoPhotoDBManager:
@@ -53,10 +65,14 @@ class GeoPhotoDBManager:
         self.connection.commit()
 
     def add_project(self, name):
-        self.cursor.execute("INSERT INTO Projects (name) VALUES (?)", (name,))
-        self.connection.commit()
-        project_id = self.cursor.lastrowid
-        return self.get_project(project_id)
+        try:
+            self.cursor.execute("INSERT INTO Projects (name) VALUES (?)", (name,))
+            self.connection.commit()
+            project_id = self.cursor.lastrowid
+            return self.get_project(project_id)
+        except sqlite3.Error as e:
+            logging.error(f'Error adding project "{name}": {e}')
+        return None
 
     def delete_project(self, project_id):
         self.cursor.execute("DELETE FROM Projects WHERE id = ?", (str(project_id),))
@@ -91,10 +107,14 @@ class GeoPhotoDBManager:
         return projects
 
     def add_well(self, name, project_id):
-        self.cursor.execute("INSERT INTO Wells (name, project_id) VALUES (?, ?)", (name, str(project_id)))
-        self.connection.commit()
-        well_id = self.cursor.lastrowid
-        return self.get_well(well_id)
+        try:
+            self.cursor.execute("INSERT INTO Wells (name, project_id) VALUES (?, ?)", (name, str(project_id)))
+            self.connection.commit()
+            well_id = self.cursor.lastrowid
+            return self.get_well(well_id)
+        except sqlite3.Error as e:
+            logging.error(f'Error adding well "{name}": {e}')
+            return None
 
     def delete_well(self, well_id):
         self.cursor.execute("DELETE FROM Wells WHERE id = ?", str(well_id))
@@ -136,33 +156,6 @@ class GeoPhotoDBManager:
         self.connection.commit()
         interval_id = self.cursor.lastrowid
         return self.get_interval(interval_id)
-
-    def add_interval_with_version_increment(self, interval_from, interval_to, well_id, condition, is_marked):
-        try:
-            self.connection.execute("BEGIN")
-
-            self.cursor.execute("""
-                SELECT MAX(version) FROM Intervals
-                WHERE interval_from = ? AND interval_to = ? AND well_id = ? AND condition = ? AND is_marked = ?""",
-                                (interval_from, interval_to, well_id, condition, is_marked))
-
-            result = self.cursor.fetchone()
-            max_version = result[0] if result[0] is not None else 0
-
-            new_version = max_version + 1
-            self.cursor.execute("""
-                INSERT INTO Intervals (interval_from, interval_to, well_id, condition, is_marked, version)
-                VALUES (?, ?, ?, ?, ?, ?)""",
-                                (interval_from, interval_to, well_id, condition, is_marked, new_version))
-
-            new_interval_id = self.cursor.lastrowid  # Получаем ID созданного интервала
-            self.connection.commit()
-
-            return True, new_interval_id  # Возвращаем успешный результат и ID нового интервала
-        except sqlite3.Error as e:
-            print(f"Ошибка при добавлении интервала: {e}")
-            self.connection.rollback()
-            return False, None  # В случае ошибки возвращаем False и None
 
     def delete_interval(self, interval_id):
         self.cursor.execute("DELETE FROM Intervals WHERE id = ?", (str(interval_id),))
@@ -237,7 +230,7 @@ class GeoPhotoDBManager:
             return None
 
     def get_all_photos_by_interval_id(self, interval_id):
-        self.cursor.execute("SELECT * FROM Photos WHERE interval_id = ?", str(interval_id))
+        self.cursor.execute("SELECT * FROM Photos WHERE interval_id = ?", (interval_id,))
         photos_data = self.cursor.fetchall()
         photos = []
         for photo_row in photos_data:
@@ -248,14 +241,18 @@ class GeoPhotoDBManager:
             photos.append(photo)
         return photos
 
-    def create_interval_with_photos(self, well_id, interval_from, interval_to, condition, is_marked, photo_paths):
+    def create_interval_with_photos(self, well_id, interval_settings, photo_paths):
         try:
             self.connection.execute("BEGIN")  # Начало транзакции
 
             self.cursor.execute("""
                             SELECT MAX(version) FROM Intervals
                             WHERE interval_from = ? AND interval_to = ? AND well_id = ? AND condition = ? AND is_marked = ?""",
-                                (interval_from, interval_to, well_id, condition.name, is_marked))
+                                (interval_settings.interval_from,
+                                 interval_settings.interval_to,
+                                 well_id,
+                                 interval_settings.condition.name,
+                                 interval_settings.is_marked))
 
             result = self.cursor.fetchone()
             max_version = result[0] if result[0] is not None else 0
@@ -264,7 +261,11 @@ class GeoPhotoDBManager:
             self.cursor.execute("""
                             INSERT INTO Intervals (interval_from, interval_to, well_id, condition, is_marked, version)
                             VALUES (?, ?, ?, ?, ?, ?)""",
-                                (interval_from, interval_to, well_id, condition.name, is_marked, new_version))
+                                (interval_settings.interval_from,
+                                 interval_settings.interval_to, well_id,
+                                 interval_settings.condition.name,
+                                 interval_settings.is_marked,
+                                 new_version))
 
             interval_id = self.cursor.lastrowid  # Получаем ID только что созданного интервала
 
@@ -276,7 +277,10 @@ class GeoPhotoDBManager:
 
             return True, interval_id  # Возвращаем ID созданного интервала после успешной транзакции
         except sqlite3.Error as e:
-            print(f"Ошибка при создании интервала {str(interval_from)} - {str(interval_to)} с фотографиями: {e}")
+            logging.error(
+                f"Ошибка при создании интервала {str(interval_settings['interval_from'])} - "
+                f"{str(interval_settings['interval_to'])}, разметка: {str(interval_settings.is_marked)}, "
+                f"состояние: {interval_settings.condition.name}, с фотографиями: {e}")
             self.connection.rollback()  # Откатываем транзакцию в случае ошибки
             return False, None
 
@@ -462,16 +466,13 @@ class PhotoView(BaseInterfaceWidget):
 
 
 class PhotoReviewWidget(BaseInterfaceWidget):
-    def __init__(self, database_manager, project, well, interval_from, interval_to, condition, is_marked, photos, switch_interface_callback,
+    def __init__(self, database_manager, project, well, interval_settings, photos, switch_interface_callback,
                  parent=None):
         super().__init__(parent)
         self.database_manager = database_manager
         self.project = project
         self.well = well
-        self.interval_from = interval_from
-        self.interval_to = interval_to
-        self.condition = condition
-        self.is_marked = is_marked
+        self.interval_settings = interval_settings
         self.photos = photos
         self.switch_interface_callback = switch_interface_callback
         self.current_photo_index = 0
@@ -501,7 +502,7 @@ class PhotoReviewWidget(BaseInterfaceWidget):
         self.layout.addLayout(buttons_layout)
 
         self.display_current_photo()
-        self.start_focus = no_button
+        self.start_focus = yes_button
 
     def display_current_photo(self):
         pixmap = QPixmap(self.photos[self.current_photo_index])
@@ -514,10 +515,7 @@ class PhotoReviewWidget(BaseInterfaceWidget):
         else:
             result = self.database_manager.create_interval_with_photos(
                 self.well["id"],
-                self.interval_from,
-                self.interval_to,
-                self.condition,
-                self.is_marked,
+                self.interval_settings,
                 self.photos)
             if result[0]:
                 new_interval = self.database_manager.get_interval(result[1])
@@ -532,7 +530,12 @@ class PhotoReviewWidget(BaseInterfaceWidget):
                 self.on_no_clicked()
 
     def on_no_clicked(self):
-        self.switch_interface_callback(CreateIntervalWidget, self.database_manager, self.project, self.well)
+        self.switch_interface_callback(
+            CreateIntervalWidget,
+            self.database_manager,
+            self.project,
+            self.well,
+            self.interval_settings)
 
 
 class IntervalWidget(BaseInterfaceWidget):
@@ -610,18 +613,22 @@ class IntervalWidget(BaseInterfaceWidget):
                 self.database_manager,
                 self.project,
                 self.well,
-                self.interval))
+                IntervalSettings(
+                    self.interval["interval_to"],
+                    self.interval["interval_to"] + INTERVAL_STEP,
+                    self.interval["is_marked"],
+                    self.interval["condition"])))
         self.focusable_elements.append(next_interval_button)
         self.start_focus = next_interval_button
 
 
 class CreateIntervalWidget(BaseInterfaceWidget):
-    def __init__(self, database_manager, project, well, last_interval, switch_interface_callback, parent=None):
+    def __init__(self, database_manager, project, well, interval_settings, switch_interface_callback, parent=None):
         super().__init__(parent)
         self.database_manager = database_manager
         self.project = project
         self.well = well
-        self.last_interval = last_interval
+        self.interval_settings = interval_settings
         self.switch_interface_callback = switch_interface_callback
         self.setup_ui()
         self.install_focus_event_filters()
@@ -651,22 +658,19 @@ class CreateIntervalWidget(BaseInterfaceWidget):
         # "Интервал От" виджет
         interval_from_widget = QWidget()
         interval_from_layout = CustomIntervalSpinBox(interval_from_widget, self)
-        if self.last_interval:
-            interval_from_layout.spin_box.setValue(float(self.last_interval["interval_to"].replace(',', '.')))
+        interval_from_layout.spin_box.setValue(self.interval_settings.interval_from)
         layout.addWidget(interval_from_widget)
 
         # "Интервал До" виджет
         interval_to_widget = QWidget()
         interval_to_layout = CustomIntervalSpinBox(interval_to_widget, self)
-        interval_to_layout.spin_box.setValue(
-            interval_from_layout.spin_box.value() + interval_to_layout.spin_box.singleStep())
+        interval_to_layout.spin_box.setValue(self.interval_settings.interval_to)
         layout.addWidget(interval_to_widget)
 
         # Mark check box
         is_marked_check_box = QCheckBox("С разметкой")
         layout.addWidget(is_marked_check_box)
-        if self.last_interval:
-            is_marked_check_box.setChecked(self.last_interval["is_marked"])
+        is_marked_check_box.setChecked(self.interval_settings.is_marked)
 
         # Wet radio button
         wet_radio_button = QRadioButton("Мокрый")
@@ -676,7 +680,7 @@ class CreateIntervalWidget(BaseInterfaceWidget):
         dry_radio_button = QRadioButton("Сухой")
         layout.addWidget(dry_radio_button)
 
-        if self.last_interval and self.last_interval["condition"] == IntervalCondition.WET:
+        if self.interval_settings.condition == IntervalCondition.WET:
             wet_radio_button.setChecked(True)
         else:
             dry_radio_button.setChecked(True)
@@ -702,10 +706,12 @@ class CreateIntervalWidget(BaseInterfaceWidget):
         make_photo_button.installEventFilter(self)
         make_photo_button.clicked.connect(
             lambda: self.make_photo(
-                interval_from_layout.spin_box.text(), 
-                interval_to_layout.spin_box.text(),
-                IntervalCondition.WET if wet_radio_button.isChecked() else IntervalCondition.DRY,
-                is_marked_check_box.isChecked()))
+                IntervalSettings(
+                    interval_from_layout.spin_box.value(),
+                    interval_to_layout.spin_box.value(),
+                    is_marked_check_box.isChecked(),
+                    IntervalCondition.WET if wet_radio_button.isChecked() else IntervalCondition.DRY
+                    )))
 
         self.focusable_elements.append(interval_from_layout.spin_box)
         self.focusable_elements.append(interval_to_layout.spin_box)
@@ -716,17 +722,14 @@ class CreateIntervalWidget(BaseInterfaceWidget):
 
         self.start_focus = make_photo_button
 
-    def make_photo(self, interval_from, interval_to, condition, is_marked):
+    def make_photo(self, interval_settings):
         photos = [os.path.join("photos", "photo_1.jpg"), os.path.join("photos", "photo_2.jpg")]
         self.switch_interface_callback(
             PhotoReviewWidget, 
             self.database_manager,
             self.project,
             self.well,
-            interval_from,
-            interval_to,
-            condition,
-            is_marked,
+            interval_settings,
             photos)
 
 
@@ -764,13 +767,31 @@ class WellWidget(BaseInterfaceWidget):
         layout.addWidget(new_interval_button)
         new_interval_button.setStyleSheet("QPushButton:focus { background-color: blue; color: white; }")
         new_interval_button.installEventFilter(self)
+
+        # Setting start values for new interval
+        interval_from_start_value = 0 if not intervals else intervals[-1]["interval_to"]
+        default_is_marked_start_value = False if not intervals else intervals[-1]["is_marked"]
+        default_condition_start_value = IntervalCondition.WET if not intervals else intervals[-1]["condition"]
+
+        new_interval_settings = {
+            "interval_from": interval_from_start_value,
+            "is_marked": default_is_marked_start_value,
+            "condition": default_condition_start_value,
+        }
+
         new_interval_button.clicked.connect(
             lambda: self.switch_interface_callback(
                 CreateIntervalWidget,
                 self.database_manager,
                 self.project,
                 self.well,
-                intervals[-1] if intervals else None))
+                IntervalSettings(
+                    float(intervals[-1]["interval_to"]),
+                    float(intervals[-1]["interval_to"]) + INTERVAL_STEP,
+                    intervals[-1]["is_marked"],
+                    intervals[-1]["condition"]) if intervals else IntervalSettings()
+            )
+        )
         self.focusable_elements.append(new_interval_button)
 
         scroll_area = QScrollArea()
