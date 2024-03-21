@@ -1,1 +1,5 @@
 .idea/
+~
+src/__pycache__
+
+geo_photo_app.log
