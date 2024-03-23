@@ -185,24 +185,29 @@ class PhotoView(BaseInterfaceWidget):
             self.well,
             self.interval))
 
-        scroll_area = QScrollArea()
-        scroll_area.setWidgetResizable(True)
-        scroll_area.setAlignment(Qt.AlignCenter)
-        layout.addWidget(scroll_area)
+        self.scroll_area = QScrollArea()
+        self.scroll_area.setWidgetResizable(True)
+        layout.addWidget(self.scroll_area)
 
         self.photo_label = QLabel()
         self.photo_label.setAlignment(Qt.AlignCenter)
-        scroll_area.setWidget(self.photo_label)
+        self.scroll_area.setWidget(self.photo_label)
         self.update_photo()
 
     def update_photo(self):
         pixmap = QPixmap(self.photo["path"])
-        scaled_pixmap = pixmap.scaled(self.photo_label.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation)
-        self.photo_label.setPixmap(scaled_pixmap)
+        self.photo_label.setPixmap(pixmap)
+        self.scaleImage()
+
+    def scaleImage(self):
+        pixmap = self.photo_label.pixmap()
+        if pixmap and not pixmap.isNull():
+            scaled_pixmap = pixmap.scaled(self.scroll_area.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            self.photo_label.setPixmap(scaled_pixmap)
 
     def resizeEvent(self, event):
-        self.update_photo()
         super().resizeEvent(event)
+        self.scaleImage()
 
 
 class PhotoReviewWidget(BaseInterfaceWidget):
