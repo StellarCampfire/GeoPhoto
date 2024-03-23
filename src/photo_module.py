@@ -1,6 +1,7 @@
 import os
 import shutil
 import logging
+import json
 from picamera2 import Picamera2
 
 
@@ -101,6 +102,6 @@ class PhotoModule:
     @staticmethod
     def check_cameras():
         camera_info = Picamera2.global_camera_info()
-        str_camera_info = "\n".join(camera_info)
+        str_camera_info = "\n".join(json.dumps(camera, indent=2) for camera in camera_info)
         logging.info(f'CAMERAS INFO: \n{str_camera_info}')
         return len(camera_info) >= 2
