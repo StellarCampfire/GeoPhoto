@@ -679,7 +679,8 @@ class ProjectWidget(BaseInterfaceWidget):
         self.create_back_button(
             lambda: self.switch_interface_callback(
                 ChooseProjectWidget,
-                self.database_manager))
+                self.database_manager,
+                self.photo_manager))
 
         project_name_label = QLabel(self.project["name"])
         layout.addWidget(project_name_label)
