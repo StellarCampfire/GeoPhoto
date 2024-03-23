@@ -32,18 +32,14 @@ class PhotoModule:
     def take_photo_with_first_camera(self, project, well, interval_settings):
         photo_path = os.path.join(
             self.temp_photo_path, self.make_photo_name(project, well, interval_settings, 1))
-        self.first_camera.start()
-        self.first_camera.capture(photo_path)
-        self.first_camera.stop()
+        self.first_camera.capture_file(photo_path)
         logging.info(f'Photo taken by first camera was saved in: {photo_path}')
         return photo_path
 
     def take_photo_with_second_camera(self, project, well, interval_settings):
         photo_path = os.path.join(
             self.temp_photo_path, self.make_photo_name(project, well, interval_settings, 2))
-        self.second_camera.start()
-        self.second_camera.capture(photo_path)
-        self.second_camera.stop()
+        self.second_camera.capture_file(photo_path)
         logging.info(f'Photo taken by second camera was saved in: {photo_path}')
         return photo_path
 
