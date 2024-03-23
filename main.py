@@ -185,21 +185,22 @@ class PhotoView(BaseInterfaceWidget):
             self.well,
             self.interval))
 
-        # Используем QLabel для отображения фото
+        scroll_area = QScrollArea()
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setAlignment(Qt.AlignCenter)
+        layout.addWidget(scroll_area)
+
         self.photo_label = QLabel()
-        self.photo_label.setAlignment(Qt.AlignCenter)  # Центрируем изображение
-        layout.addWidget(self.photo_label)
+        self.photo_label.setAlignment(Qt.AlignCenter)
+        scroll_area.setWidget(self.photo_label)
         self.update_photo()
 
     def update_photo(self):
-        # Загрузка и масштабирование изображения с учетом текущего размера QLabel
         pixmap = QPixmap(self.photo["path"])
-        self.photo_label.setPixmap(
-            pixmap.scaled(self.photo_label.width(), self.photo_label.height(), Qt.KeepAspectRatio,
-                          Qt.SmoothTransformation))
+        scaled_pixmap = pixmap.scaled(self.photo_label.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        self.photo_label.setPixmap(scaled_pixmap)
 
     def resizeEvent(self, event):
-        # Обновляем изображение при изменении размера окна
         self.update_photo()
         super().resizeEvent(event)
 
