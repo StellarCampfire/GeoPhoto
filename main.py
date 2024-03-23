@@ -13,6 +13,14 @@ DATA_FOLDER_PATH = os.path.join("~", ".geo_photo")
 INTERVAL_STEP = 0.5
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', filename='geo_photo_app.log')
 
+def handle_exception(exc_type, exc_value, exc_traceback):
+    if issubclass(exc_type, KeyboardInterrupt):
+        sys.__excepthook__(exc_type, exc_value, exc_traceback)
+        return
+
+    logging.error("Uncaught exception", exc_info=(exc_type, exc_value, exc_traceback))
+    sys.exit(1)
+
 
 class IntervalSettings:
     def __init__(self, interval_from=0.0, interval_to=INTERVAL_STEP, is_marked=False, condition=IntervalCondition.WET):
@@ -154,9 +162,10 @@ class CustomIntervalSpinBox(QHBoxLayout):
 
 
 class PhotoView(BaseInterfaceWidget):
-    def __init__(self, database_manager, project, well, interval, photo, switch_interface_callback, parent=None):
+    def __init__(self, database_manager, photo_manager, project, well, interval, photo, switch_interface_callback, parent=None):
         super().__init__(parent)
         self.database_manager = database_manager
+        self.photo_manager = photo_manager
         self.project = project
         self.well = well
         self.interval = interval
@@ -171,6 +180,7 @@ class PhotoView(BaseInterfaceWidget):
         self.create_back_button(lambda: self.switch_interface_callback(
             IntervalWidget,
             self.database_manager,
+            self.photo_manager,
             self.project,
             self.well,
             self.interval))
@@ -199,10 +209,11 @@ class PhotoView(BaseInterfaceWidget):
 
 
 class PhotoReviewWidget(BaseInterfaceWidget):
-    def __init__(self, database_manager, project, well, interval_settings, photos, switch_interface_callback,
+    def __init__(self, database_manager, photo_manager, project, well, interval_settings, photos, switch_interface_callback,
                  parent=None):
         super().__init__(parent)
         self.database_manager = database_manager
+        self.photo_manager = photo_manager
         self.project = project
         self.well = well
         self.interval_settings = interval_settings
@@ -246,15 +257,20 @@ class PhotoReviewWidget(BaseInterfaceWidget):
             self.current_photo_index += 1
             self.display_current_photo()
         else:
+            permanent_photos = ph_manager.save_photos_to_permanent_storage(
+                self.project,
+                self.well,
+                self.interval_settings)
             result = self.database_manager.create_interval_with_photos(
                 self.well["id"],
                 self.interval_settings,
-                self.photos)
+                permanent_photos)
             if result[0]:
                 new_interval = self.database_manager.get_interval(result[1])
                 self.switch_interface_callback(
                     IntervalWidget,
                     self.database_manager,
+                    self.photo_manager,
                     self.project,
                     self.well,
                     new_interval)
@@ -263,18 +279,21 @@ class PhotoReviewWidget(BaseInterfaceWidget):
                 self.on_no_clicked()
 
     def on_no_clicked(self):
+        self.photo_manager.clear_temp_storage()
         self.switch_interface_callback(
             CreateIntervalWidget,
             self.database_manager,
+            self.photo_manager,
             self.project,
             self.well,
             self.interval_settings)
 
 
 class IntervalWidget(BaseInterfaceWidget):
-    def __init__(self, database_manager, project, well, interval, switch_interface_callback, parent=None):
+    def __init__(self, database_manager, photo_manager, project, well, interval, switch_interface_callback, parent=None):
         super().__init__(parent)
         self.database_manager = database_manager
+        self.photo_manager = photo_manager
         self.project = project
         self.well = well
         self.interval = interval
@@ -289,6 +308,7 @@ class IntervalWidget(BaseInterfaceWidget):
             lambda: self.switch_interface_callback(
                 WellWidget,
                 self.database_manager,
+                self.photo_manager,
                 self.project,
                 self.well))
 
@@ -325,6 +345,7 @@ class IntervalWidget(BaseInterfaceWidget):
                 lambda _, p=photo: self.switch_interface_callback(
                     PhotoView,
                     self.database_manager,
+                    self.photo_manager,
                     self.project,
                     self.well,
                     self.interval,
@@ -344,6 +365,7 @@ class IntervalWidget(BaseInterfaceWidget):
             lambda: self.switch_interface_callback(
                 CreateIntervalWidget,
                 self.database_manager,
+                self.photo_manager,
                 self.project,
                 self.well,
                 IntervalSettings(
@@ -356,9 +378,10 @@ class IntervalWidget(BaseInterfaceWidget):
 
 
 class CreateIntervalWidget(BaseInterfaceWidget):
-    def __init__(self, database_manager, project, well, interval_settings, switch_interface_callback, parent=None):
+    def __init__(self, database_manager, photo_manager, project, well, interval_settings, switch_interface_callback, parent=None):
         super().__init__(parent)
         self.database_manager = database_manager
+        self.photo_manager = photo_manager
         self.project = project
         self.well = well
         self.interval_settings = interval_settings
@@ -373,6 +396,7 @@ class CreateIntervalWidget(BaseInterfaceWidget):
             lambda: self.switch_interface_callback(
                 WellWidget,
                 self.database_manager,
+                self.photo_manager,
                 self.project,
                 self.well))
 
@@ -456,10 +480,11 @@ class CreateIntervalWidget(BaseInterfaceWidget):
         self.start_focus = make_photo_button
 
     def make_photo(self, interval_settings):
-        photos = [os.path.join("photos", "photo_1.jpg"), os.path.join("photos", "photo_2.jpg")]
+        photos = self.photo_manager.take_photos(self.project, self.well, interval_settings)
         self.switch_interface_callback(
             PhotoReviewWidget, 
             self.database_manager,
+            self.photo_manager,
             self.project,
             self.well,
             interval_settings,
@@ -467,9 +492,10 @@ class CreateIntervalWidget(BaseInterfaceWidget):
 
 
 class WellWidget(BaseInterfaceWidget):
-    def __init__(self, database_manager, project, well, switch_interface_callback, parent=None):
+    def __init__(self, database_manager, photo_manager, project, well, switch_interface_callback, parent=None):
         super().__init__(parent)
         self.database_manager = database_manager
+        self.photo_manager = photo_manager
         self.project = project
         self.well = well
         self.switch_interface_callback = switch_interface_callback
@@ -485,6 +511,7 @@ class WellWidget(BaseInterfaceWidget):
             lambda: self.switch_interface_callback(
                 ProjectWidget,
                 self.database_manager,
+                self.photo_manager,
                 self.project))
 
         project_name_label = QLabel(self.project["name"])
@@ -501,21 +528,11 @@ class WellWidget(BaseInterfaceWidget):
         new_interval_button.setStyleSheet("QPushButton:focus { background-color: blue; color: white; }")
         new_interval_button.installEventFilter(self)
 
-        # Setting start values for new interval
-        interval_from_start_value = 0 if not intervals else intervals[-1]["interval_to"]
-        default_is_marked_start_value = False if not intervals else intervals[-1]["is_marked"]
-        default_condition_start_value = IntervalCondition.WET if not intervals else intervals[-1]["condition"]
-
-        new_interval_settings = {
-            "interval_from": interval_from_start_value,
-            "is_marked": default_is_marked_start_value,
-            "condition": default_condition_start_value,
-        }
-
         new_interval_button.clicked.connect(
             lambda: self.switch_interface_callback(
                 CreateIntervalWidget,
                 self.database_manager,
+                self.photo_manager,
                 self.project,
                 self.well,
                 IntervalSettings(
@@ -540,7 +557,7 @@ class WellWidget(BaseInterfaceWidget):
                                           scroll_container)
             interval_button.clicked.connect(
                 lambda _, i=interval: self.switch_interface_callback(
-                    IntervalWidget, self.database_manager, self.project, self.well, i))
+                    IntervalWidget, self.database_manager, self.photo_manager, self.project, self.well, i))
             scroll_layout.addWidget(interval_button)
             interval_button.installEventFilter(self)
             interval_button.setStyleSheet("""
@@ -550,9 +567,10 @@ class WellWidget(BaseInterfaceWidget):
 
 
 class CreateWellWidget(BaseInterfaceWidget):
-    def __init__(self, database_manager, project, switch_interface_callback, parent=None):
+    def __init__(self, database_manager, photo_manager, project, switch_interface_callback, parent=None):
         super().__init__(parent)
         self.database_manager = database_manager
+        self.photo_manager = photo_manager
         self.project = project
         self.switch_interface_callback = switch_interface_callback
         self.setup_ui()
@@ -565,6 +583,7 @@ class CreateWellWidget(BaseInterfaceWidget):
             lambda: self.switch_interface_callback(
                 ProjectWidget,
                 self.database_manager,
+                self.photo_manager,
                 self.project))
 
         # Метка "Создание новой скважины"
@@ -591,13 +610,19 @@ class CreateWellWidget(BaseInterfaceWidget):
 
     def create_well(self, well_name):
         new_well = self.database_manager.add_well(well_name, self.project["id"])
-        self.switch_interface_callback(WellWidget, self.database_manager, self.project, new_well)
+        self.switch_interface_callback(
+            WellWidget,
+            self.database_manager,
+            self.photo_manager,
+            self.project,
+            new_well)
 
 
 class CreateProjectWidget(BaseInterfaceWidget):
-    def __init__(self, database_manager, switch_interface_callback, parent=None):
+    def __init__(self, database_manager, photo_manager, switch_interface_callback, parent=None):
         super().__init__(parent)
         self.database_manager = database_manager
+        self.photo_manager = photo_manager
         self.switch_interface_callback = switch_interface_callback
         self.setup_ui()
         self.install_focus_event_filters()
@@ -634,13 +659,15 @@ class CreateProjectWidget(BaseInterfaceWidget):
         self.switch_interface_callback(
             ProjectWidget,
             self.database_manager,
+            self.photo_manager,
             new_project)
 
 
 class ProjectWidget(BaseInterfaceWidget):
-    def __init__(self, database_manager, project, switch_interface_callback, parent=None):
+    def __init__(self, database_manager, photo_manager, project, switch_interface_callback, parent=None):
         super().__init__(parent)
         self.database_manager = database_manager
+        self.photo_manager = photo_manager
         self.project = project
         self.switch_interface_callback = switch_interface_callback
         self.setup_ui()
@@ -663,7 +690,11 @@ class ProjectWidget(BaseInterfaceWidget):
         new_well_button = FocusButton("Новая скважина")
         new_well_button.setStyleSheet("QPushButton:focus { background-color: blue; color: white; }")
         new_well_button.clicked.connect(
-            lambda: self.switch_interface_callback(CreateWellWidget, self.database_manager, self.project)
+            lambda: self.switch_interface_callback(
+                CreateWellWidget,
+                self.database_manager,
+                self.photo_manager,
+                self.project)
         )
         layout.addWidget(new_well_button)
         self.focusable_elements.append(new_well_button)
@@ -680,7 +711,12 @@ class ProjectWidget(BaseInterfaceWidget):
         for well in wells:
             well_button = FocusButton(well["name"], scroll_container)
             well_button.clicked.connect(
-                lambda _, w=well: self.switch_interface_callback(WellWidget, self.database_manager, self.project, w))
+                lambda _, w=well: self.switch_interface_callback(
+                    WellWidget,
+                    self.database_manager,
+                    self.photo_manager,
+                    self.project,
+                    w))
             scroll_layout.addWidget(well_button)
             well_button.setStyleSheet("""
                                         QPushButton:focus { background-color: blue; color: white; }
@@ -689,9 +725,10 @@ class ProjectWidget(BaseInterfaceWidget):
 
 
 class ChooseProjectWidget(BaseInterfaceWidget):
-    def __init__(self, database_manager, switch_interface_callback, parent=None):
+    def __init__(self, database_manager, photo_manager, switch_interface_callback, parent=None):
         super().__init__(parent)
         self.database_manager = database_manager
+        self.photo_manager = photo_manager
         self.switch_interface_callback = switch_interface_callback
         self.setup_ui()
         self.install_focus_event_filters()
@@ -706,7 +743,7 @@ class ChooseProjectWidget(BaseInterfaceWidget):
         layout.addWidget(new_project_button)
         new_project_button.setStyleSheet("QPushButton:focus { background-color: blue; color: white; }")
         new_project_button.clicked.connect(
-            lambda: self.switch_interface_callback(CreateProjectWidget, self.database_manager)
+            lambda: self.switch_interface_callback(CreateProjectWidget, self.database_manager, self.photo_manager)
         )
         self.focusable_elements.append(new_project_button)
 
@@ -722,7 +759,7 @@ class ChooseProjectWidget(BaseInterfaceWidget):
         for project in projects:
             project_button = FocusButton(project["name"], scroll_container)
             project_button.clicked.connect(
-                lambda _, p=project: self.switch_interface_callback(ProjectWidget, self.database_manager, p))
+                lambda _, p=project: self.switch_interface_callback(ProjectWidget, self.database_manager, self.photo_manager, p))
             scroll_layout.addWidget(project_button)
             project_button.setStyleSheet("""
                                 QPushButton:focus { background-color: blue; color: white; }
@@ -733,7 +770,7 @@ class ChooseProjectWidget(BaseInterfaceWidget):
 
 
 class MainWindow(QMainWindow):
-    def __init__(self, database_manager):
+    def __init__(self, database_manager, photo_manager):
         super().__init__()
         self.setWindowTitle("GeoPhoto")
 
@@ -741,7 +778,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self.stacked_widget)
 
         # Создание и добавление главного интерфейса
-        self.main_widget = ChooseProjectWidget(database_manager, self.switch_interface)
+        self.main_widget = ChooseProjectWidget(database_manager, photo_manager, self.switch_interface)
         self.stacked_widget.addWidget(self.main_widget)
 
     def switch_interface(self, interface_class, *args, **kwargs):
@@ -758,14 +795,36 @@ class MainWindow(QMainWindow):
 
 
 if __name__ == '__main__':
+    sys.excepthook = handle_exception
+
     if not os.path.exists(DATA_FOLDER_PATH):
         os.makedirs(DATA_FOLDER_PATH)
 
     db_manager = DBManager(DATA_FOLDER_PATH)
 
+    ph_manager = None
+    try:
+        logging.info(f"Trying to start photo manager")
+        from src.photo_module import PhotoModule
+        ph_manager = PhotoModule()
+        logging.info(f"Photo manager stated.")
+    except Exception as e:
+        logging.error(f"Failed to initialize photo manager: {e}")
+
+    if ph_manager is None:
+        logging.info(f"Trying to start photo manager EMULATOR")
+        from src.photo_module_emulator import PhotoModuleEmulator
+        ph_manager = PhotoModuleEmulator()
+        logging.info(f"Photo manager EMULATOR stated.")
+
+    ph_manager.clear_temp_storage()
+
     app = QApplication(sys.argv)
-    window = MainWindow(db_manager)
+
+    window = MainWindow(db_manager, ph_manager)
     window.showFullScreen()
+
+    logging.info("App started")
 
     app.aboutToQuit.connect(db_manager.close_connection)
     sys.exit(app.exec_())
