@@ -14,6 +14,10 @@ class PhotoModule:
         self.first_camera = Picamera2(0)
         self.second_camera = Picamera2(1)
 
+        config = self.first_camera.create_preview_configuration()
+        self.first_camera.configure(config)
+        self.second_camera.configure(config)
+
         self.temp_photo_path = os.path.join("temp", "photos")
         if not os.path.exists(self.temp_photo_path):
             os.makedirs(self.temp_photo_path)
