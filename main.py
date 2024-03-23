@@ -185,27 +185,23 @@ class PhotoView(BaseInterfaceWidget):
             self.well,
             self.interval))
 
-        photo_label = QLabel()
-        pixmap = QPixmap(self.photo["path"])
-        photo_label.setPixmap(pixmap.scaled(photo_label.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation))
-        layout.addWidget(photo_label)
+        # Используем QLabel для отображения фото
+        self.photo_label = QLabel()
+        self.photo_label.setAlignment(Qt.AlignCenter)  # Центрируем изображение
+        layout.addWidget(self.photo_label)
+        self.update_photo()
 
-    #     self.photo_label = QLabel()
-    #     self.photo_label.setAlignment(Qt.AlignCenter)  # Центрируем изображение
-    #     layout.addWidget(self.photo_label)
-    #     self.update_photo()
-    #
-    # def update_photo(self):
-    #     # Загрузка и масштабирование изображения с учетом текущего размера QLabel
-    #     pixmap = QPixmap(self.photo["path"])
-    #     self.photo_label.setPixmap(
-    #         pixmap.scaled(self.photo_label.width(), self.photo_label.height(), Qt.KeepAspectRatio,
-    #                       Qt.SmoothTransformation))
-    #
-    # def resizeEvent(self, event):
-    #     # Обновляем изображение при изменении размера окна
-    #     self.update_photo()
-    #     super().resizeEvent(event)
+    def update_photo(self):
+        # Загрузка и масштабирование изображения с учетом текущего размера QLabel
+        pixmap = QPixmap(self.photo["path"])
+        self.photo_label.setPixmap(
+            pixmap.scaled(self.photo_label.width(), self.photo_label.height(), Qt.KeepAspectRatio,
+                          Qt.SmoothTransformation))
+
+    def resizeEvent(self, event):
+        # Обновляем изображение при изменении размера окна
+        self.update_photo()
+        super().resizeEvent(event)
 
 
 class PhotoReviewWidget(BaseInterfaceWidget):
@@ -257,8 +253,18 @@ class PhotoReviewWidget(BaseInterfaceWidget):
 
     def display_current_photo(self):
         pixmap = QPixmap(self.photos[self.current_photo_index])
-        self.photo_label.setMaximumSize(800, 600)
-        self.photo_label.setPixmap(pixmap.scaled(self.photo_label.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        self.photo_label.setPixmap(pixmap)
+        self.scaleImage()
+
+    def scaleImage(self):
+        pixmap = self.photo_label.pixmap()
+        if pixmap and not pixmap.isNull():
+            scaledPixmap = pixmap.scaled(self.scroll_area.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            self.photo_label.setPixmap(scaledPixmap)
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self.scaleImage()
 
     def on_yes_clicked(self):
         if self.current_photo_index < len(self.photos) - 1:
