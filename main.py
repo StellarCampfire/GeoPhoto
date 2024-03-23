@@ -222,8 +222,15 @@ class PhotoReviewWidget(BaseInterfaceWidget):
         self.current_photo_index = 0
 
         self.layout = QVBoxLayout(self)
+
+        self.scroll_area = QScrollArea()
+        self.scroll_area.setWidgetResizable(True)
+        self.layout.addWidget(self.scroll_area)
+
         self.photo_label = QLabel()
-        self.layout.addWidget(self.photo_label)
+        self.photo_label.setAlignment(Qt.AlignCenter)
+        self.scroll_area.setWidget(self.photo_label)
+
 
         buttons_layout = QHBoxLayout()
 
@@ -250,6 +257,7 @@ class PhotoReviewWidget(BaseInterfaceWidget):
 
     def display_current_photo(self):
         pixmap = QPixmap(self.photos[self.current_photo_index])
+        self.photo_label.setMaximumSize(800, 600)
         self.photo_label.setPixmap(pixmap.scaled(self.photo_label.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation))
 
     def on_yes_clicked(self):
