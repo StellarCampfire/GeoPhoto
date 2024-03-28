@@ -5,7 +5,8 @@ from src.data_base_module import DBManager
 from src.types import IntervalCondition
 
 from PyQt5.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout, QPushButton,
-                             QScrollArea, QMainWindow, QLabel, QStackedWidget, QLineEdit, QDoubleSpinBox, QRadioButton, QCheckBox)
+                             QScrollArea, QMainWindow, QLabel, QStackedWidget, QLineEdit, QDoubleSpinBox,
+                             QRadioButton, QCheckBox, QFileDialog)
 from PyQt5.QtCore import Qt, QEvent, QTimer
 from PyQt5.QtGui import QPixmap
 
@@ -746,6 +747,49 @@ class ProjectWidget(BaseInterfaceWidget):
             self.focusable_elements.append(well_button)
 
 
+class StartWidget(BaseInterfaceWidget):
+    def __init__(self, photo_manager, switch_interface_callback, parent=None):
+        super().__init__(parent)
+        self.photo_manager = photo_manager
+        self.switch_interface_callback = switch_interface_callback
+        self.setup_ui()
+        self.install_focus_event_filters()
+
+    def setup_ui(self):
+        layout = QVBoxLayout(self)
+
+        new_project_button = FocusButton("Создать новый проект")
+        layout.addWidget(new_project_button)
+        new_project_button.setStyleSheet("QPushButton:focus { background-color: blue; color: white; }")
+        new_project_button.clicked.connect(
+            lambda: self.switch_interface_callback(CreateProjectWidget, self.photo_manager)
+        )
+
+        select_project_button = FocusButton("Открыть проект")
+        select_project_button.clicked.connect(self.openFileDialog)
+        layout.addWidget(select_project_button)
+
+        self.file_label = QLabel('Chosen file will appear here', self)
+        layout.addWidget(self.file_label)
+
+        settings_button = FocusButton("Настройки")
+        layout.addWidget(settings_button)
+
+        self.focusable_elements.append(new_project_button)
+        self.focusable_elements.append(select_project_button)
+        self.focusable_elements.append(settings_button)
+
+        self.start_focus = new_project_button
+
+    def openFileDialog(self):
+        options = QFileDialog.Options()
+        file_name, _ = QFileDialog.getOpenFileName(self, "QFileDialog.getOpenFileName()", "",
+                                                  "All Files (*);;Python Files (*.py)", options=options)
+        if file_name:
+            self.file_label.setText(file_name)
+
+
+
 class ChooseProjectWidget(BaseInterfaceWidget):
     def __init__(self, database_manager, photo_manager, switch_interface_callback, parent=None):
         super().__init__(parent)
@@ -800,7 +844,10 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self.stacked_widget)
 
         # Создание и добавление главного интерфейса
-        self.main_widget = ChooseProjectWidget(database_manager, photo_manager, self.switch_interface)
+        # self.main_widget = ChooseProjectWidget(database_manager, photo_manager, self.switch_interface)
+        # self.stacked_widget.addWidget(self.main_widget)
+
+        self.main_widget = StartWidget(photo_manager, self.switch_interface)
         self.stacked_widget.addWidget(self.main_widget)
 
     def switch_interface(self, interface_class, *args, **kwargs):
@@ -830,6 +877,8 @@ if __name__ == '__main__':
         from src.photo_module import PhotoModule
         ph_manager = PhotoModule()
         logging.info(f"Photo manager stated.")
+        ph_manager.get_exposure_settins_value()
+
     except Exception as e:
         logging.error(f"Failed to initialize photo manager: {e}")
 
