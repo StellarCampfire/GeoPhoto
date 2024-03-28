@@ -11,7 +11,10 @@ from PyQt5.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout, QP
                              QRadioButton, QCheckBox, QFileDialog)
 from PyQt5.QtCore import Qt, QEvent, QTimer
 from PyQt5.QtGui import QPixmap
+from main import IntervalSettings
 
+
+from resources.py.camera_settings_test import Ui_MainWindow
 
 
 DATA_FOLDER_PATH = os.path.join("~", ".geo_photo")
@@ -30,7 +33,18 @@ def handle_exception(exc_type, exc_value, exc_traceback):
 class App(QMainWindow):
     def __init__(self):
         super().__init__()
-        uic.loadUi(os.path.join('resources', 'ui', 'camera_settings_test.ui'), self)
+        self.ui = Ui_MainWindow()
+        self.ui.setupUi(self)
+
+        self.ui.sutter_speed_spinBox.setMinimum(37)
+        self.ui.sutter_speed_spinBox.setMaximum(30000)
+        self.ui.sutter_speed_spinBox.setValue(1000)
+
+        self.ui.take_photo_camera_1.clicked.connect(lambda : ph_manager.take_photo_with_first_camera(
+            {'name': 'someproject'},
+            {'name': 'well'},
+            IntervalSettings()))
+
 
 
 if __name__ == '__main__':
