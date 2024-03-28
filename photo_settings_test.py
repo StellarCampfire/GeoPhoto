@@ -37,11 +37,11 @@ class App(QMainWindow):
         self.ui.setupUi(self)
 
         self.ui.sutter_speed_spinBox.setMinimum(37)
-        self.ui.sutter_speed_spinBox.setMaximum(30000)
+        self.ui.sutter_speed_spinBox.setMaximum(100000)
         self.ui.sutter_speed_spinBox.setValue(1000)
 
         self.ui.iso_spinBox.setMinimum(0)
-        self.ui.iso_spinBox.setMaximum(10)
+        self.ui.iso_spinBox.setMaximum(100)
         self.ui.iso_spinBox.setValue(1)
 
         # self.ui.take_photo_camera_1.clicked.connect(lambda : ph_manager.take_photo_with_first_camera(
