@@ -100,7 +100,7 @@ class PhotoModule:
                 logging.error(f"Failed to delete {file_path}. Reason: {e}")
 
     def get_exposure_settins_value(self):
-        min_exp, max_exp, default_exp = self.first_camera.camera_controles["ExposureTime"]
+        min_exp, max_exp, default_exp = self.first_camera.camera_controls["ExposureTime"]
         logging.info(f'Camer exposure settins: min {min_exp}, max{max_exp}, default{default_exp}')
 
 
