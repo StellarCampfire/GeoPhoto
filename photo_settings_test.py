@@ -42,6 +42,7 @@ if __name__ == '__main__':
         from src.photo_module import PhotoModule
 
         ph_manager = PhotoModule()
+        ph_manager.get_exposure_settins_value()
         logging.info(f"Photo manager stated.")
     except Exception as e:
         logging.error(f"Failed to initialize photo manager: {e}")
