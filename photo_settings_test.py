@@ -40,10 +40,19 @@ class App(QMainWindow):
         self.ui.sutter_speed_spinBox.setMaximum(30000)
         self.ui.sutter_speed_spinBox.setValue(1000)
 
-        self.ui.take_photo_camera_1.clicked.connect(lambda : ph_manager.take_photo_with_first_camera(
+        self.ui.iso_spinBox.setMinimum(0)
+        self.ui.iso_spinBox.setMaximum(10)
+        self.ui.iso_spinBox.setValue(1)
+
+        # self.ui.take_photo_camera_1.clicked.connect(lambda : ph_manager.take_photo_with_first_camera(
+        #     {'name': 'someproject'},
+        #     {'name': 'well'},
+        #     IntervalSettings()))
+        #
+        self.ui.take_photo_camera_1.clicked.connect(lambda : ph_manager.set_controls_and_take_photo(
             {'name': 'someproject'},
             {'name': 'well'},
-            IntervalSettings()))
+            IntervalSettings(), self.ui.sutter_speed_spinBox.value(), self.ui.iso_spinBox.value()))
 
 
 

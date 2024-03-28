@@ -15,6 +15,13 @@ class PhotoModule:
         self.second_camera = Picamera2(1)
 
         config = self.first_camera.create_preview_configuration()
+
+        config["controls"]["AeEnable"] = False
+
+        # Устанавливаем ручные настройки экспозиции
+        config["controls"]["ExposureTime"] = 1000  # Выдержка в микросекундах, например, 1/50 секунды
+        config["controls"]["AnalogueGain"] = 1.0
+
         self.first_camera.configure(config)
         self.second_camera.configure(config)
 
@@ -103,6 +110,13 @@ class PhotoModule:
         min_exp, max_exp, default_exp = self.first_camera.camera_controls["ExposureTime"]
         logging.info(f'Camer exposure settins: min {min_exp}, max{max_exp}, default{default_exp}')
 
+    def set_controls(self, exp, iso):
+        self.first_camera.set_controls({"ExposureTime": exp, "AnalogueGain": iso})
+        self.second_camera.set_controls({"ExposureTime": exp, "AnalogueGain": iso})
+
+    def set_controls_and_take_photo(self, project, well, interval_settings, exp, iso):
+        self.set_controls(exp, iso)
+        self.take_photo_with_first_camera(project, well, interval_settings)
 
     @staticmethod
     def make_photo_name(project, well, interval_settings, photo_num):
