@@ -45,8 +45,8 @@ class PhotoModuleEmulator:
                                 f'{"Marked" if interval_settings.is_marked else "NotMarked"}_'
                                 f'{interval_settings.condition.name}')
         permanent_folder_path = os.path.join(self.permanent_storage_path,
-                                             project["name"],
-                                             well["name"],
+                                             project.name,
+                                             well.name,
                                              interval_folder_name)
 
         # Create path if not exists
@@ -98,7 +98,7 @@ class PhotoModuleEmulator:
 
     @staticmethod
     def make_photo_name(project, well, interval_settings, photo_num):
-        photo_name = (f'{project["name"]}_{well["name"]}_{interval_settings.interval_from}_'
+        photo_name = (f'{project.name}_{well.name}_{interval_settings.interval_from}_'
                       f'{interval_settings.interval_to}_{str(interval_settings.is_marked)}_'
                       f'{interval_settings.condition.name}_photo{str(photo_num)}.jpg')
         return photo_name

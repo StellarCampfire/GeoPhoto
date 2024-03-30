@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>StartForm</class>
+ <widget class="QWidget" name="StartForm">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>300</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QPushButton" name="new_project_button">
+     <property name="text">
+      <string>Создать новый проект</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="open_project_button">
+     <property name="text">
+      <string>Открыть проект</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="settings_button">
+     <property name="text">
+      <string>Настройки</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

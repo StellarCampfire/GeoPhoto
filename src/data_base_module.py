@@ -1,26 +1,24 @@
 import os
 import sqlite3
 import logging
-from src.types import IntervalCondition
+from src.models import IntervalCondition, Project, Well, Interval, Photo
 
 
 class DBManager:
-    def __init__(self, db_folder_path):
-        db_path = os.path.join(db_folder_path, "geo_photo_database.db")
+    def __init__(self, project):
+        database_dir = os.path.join(project.path, "database")
+        db_path = os.path.join(database_dir, f"{project.name}_geo_photo_database.db")
+
+        os.makedirs(database_dir, exist_ok=True)
+
         self.connection = sqlite3.connect(db_path)
         self.cursor = self.connection.cursor()
         self.setup_database()
 
     def setup_database(self):
-        self.cursor.execute('''CREATE TABLE IF NOT EXISTS Projects(
-            id INTEGER PRIMARY KEY,
-            name TEXT NOT NULL
-            )''')
         self.cursor.execute('''CREATE TABLE IF NOT EXISTS Wells(
             id INTEGER PRIMARY KEY,
-            name TEXT NOT NULL,
-            project_id INTEGER NOT NULL,
-            FOREIGN KEY(project_id) REFERENCES Projects(id) ON DELETE CASCADE
+            name TEXT NOT NULL
             )''')
         self.cursor.execute('''CREATE TABLE IF NOT EXISTS Intervals(
             id INTEGER PRIMARY KEY,
@@ -83,15 +81,37 @@ class DBManager:
             projects.append(project)
         return projects
 
-    def add_well(self, name, project_id):
+    # def add_well(self, name, project_id):
+    #     try:
+    #         self.cursor.execute("INSERT INTO Wells (name, project_id) VALUES (?, ?)", (name, str(project_id)))
+    #         self.connection.commit()
+    #         well_id = self.cursor.lastrowid
+    #         return self.get_well(well_id)
+    #     except sqlite3.Error as e:
+    #         logging.error(f'Error adding well "{name}": {e}')
+    #         return None
+
+    # def add_well(self, name, project_id):
+    #     try:
+    #         self.cursor.execute("INSERT INTO Wells (name) VALUES (?)", (name))
+    #         self.connection.commit()
+    #         well_id = self.cursor.lastrowid
+    #         return self.get_well(well_id)
+    #     except sqlite3.Error as e:
+    #         logging.error(f'Error adding well "{name}": {e}')
+    #         return None
+
+    def add_well(self, name):
         try:
-            self.cursor.execute("INSERT INTO Wells (name, project_id) VALUES (?, ?)", (name, str(project_id)))
+            self.cursor.execute("INSERT INTO Wells (name) VALUES (?)", (name,))
             self.connection.commit()
             well_id = self.cursor.lastrowid
-            return self.get_well(well_id)
+            logging.info(f'New well with ID: {well_id} created.')
+            return well_id
         except sqlite3.Error as e:
             logging.error(f'Error adding well "{name}": {e}')
             return None
+
 
     def delete_well(self, well_id):
         self.cursor.execute("DELETE FROM Wells WHERE id = ?", str(well_id))
@@ -102,28 +122,24 @@ class DBManager:
         self.connection.commit()
 
     def get_well(self, well_id):
-        self.cursor.execute("SELECT * FROM Wells WHERE id = ?", str(well_id))
+        self.cursor.execute("SELECT * FROM Wells WHERE id = ?", (str(well_id),))
         well_data = self.cursor.fetchone()
         if well_data:
-            well = {
-                'id': well_data[0],
-                'name': well_data[1],
-                'project_id': well_data[2]
-            }
+            well = Well(
+                well_data[0],
+                well_data[1])
             return well
         else:
             return None
 
-    def get_all_wells_by_project_id(self, project_id):
-        self.cursor.execute("SELECT * FROM Wells WHERE project_id = ?", str(project_id))
+    def get_all_wells(self):
+        self.cursor.execute("SELECT * FROM Wells")
         wells_data = self.cursor.fetchall()
         wells = []
         for well_row in wells_data:
-            well = {
-                'id': well_row[0],
-                'name': well_row[1],
-                'project_id': well_row[2]
-            }
+            well = Well(
+                well_row[0],
+                well_row[1])
             wells.append(well)
         return wells
 
@@ -148,15 +164,15 @@ class DBManager:
         interval_data = self.cursor.fetchone()
         if interval_data:
             condition = IntervalCondition[interval_data[5].upper()]
-            interval = {
-                'id': interval_data[0],
-                'version': interval_data[1],
-                'well_id': interval_data[2],
-                'interval_from': interval_data[3],
-                'interval_to': interval_data[4],
-                'condition': condition,
-                'is_marked': interval_data[6],
-            }
+            interval = Interval(
+                interval_data[0],
+                interval_data[1],
+                interval_data[2],
+                interval_data[3],
+                interval_data[4],
+                condition,
+                interval_data[6],
+            )
             return interval
         else:
             return None
@@ -167,15 +183,15 @@ class DBManager:
         intervals = []
         for interval_row in intervals_data:
             condition = IntervalCondition[interval_row[5].upper()]
-            interval = {
-                'id': interval_row[0],
-                'version': interval_row[1],
-                'well_id': interval_row[2],
-                'interval_from': interval_row[3],
-                'interval_to': interval_row[4],
-                'condition': condition,
-                'is_marked': interval_row[6],
-            }
+            interval = Interval(
+                interval_row[0],
+                interval_row[1],
+                interval_row[2],
+                interval_row[3],
+                interval_row[4],
+                condition,
+                interval_row[6],
+            )
             intervals.append(interval)
         return intervals
 
@@ -197,11 +213,11 @@ class DBManager:
         self.cursor.execute("SELECT * FROM Photos WHERE id = ?", (str(photo_id),))
         photo_data = self.cursor.fetchone()
         if photo_data:
-            photo = {
-                'id': photo_data[0],
-                'path': photo_data[1],
-                'interval_id': photo_data[2]
-            }
+            photo = Photo(
+                photo_data[0],
+                photo_data[1],
+                photo_data[2],
+            )
             return photo
         else:
             return None
@@ -211,10 +227,11 @@ class DBManager:
         photos_data = self.cursor.fetchall()
         photos = []
         for photo_row in photos_data:
-            photo = {
-                'id': photo_row[0],
-                'path': photo_row[1],
-            }
+            photo = Photo(
+                photo_row[0],
+                photo_row[1],
+                photo_row[2],
+            )
             photos.append(photo)
         return photos
 

@@ -116,7 +116,7 @@ class PhotoModule:
 
     def set_controls_and_take_photo(self, project, well, interval_settings, exp, iso):
         self.set_controls(exp, iso)
-        self.take_photo_with_first_camera(project, well, interval_settings)
+        return self.take_photo_with_first_camera(project, well, interval_settings)
 
     @staticmethod
     def make_photo_name(project, well, interval_settings, photo_num):

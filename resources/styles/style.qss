@@ -1,0 +1,20 @@
+QPushButton[class="CustomSpinboxButton"] {
+    background-color: #4CAF50;
+    color: white;
+    border-radius: 10px;
+    padding: 10px 24px;
+}
+
+QPushButton[class="CustomSpinboxButtonPressed"] {
+    background-color: #cccccc;
+    border: 1px solid #bbbbbb;
+    border-radius: 10px;
+    padding: 10px 24px;
+    color: white;
+}
+
+QDoubleSpinBox:focus {
+    border: 2px solid #0057D9;  /* Синяя рамка */
+    background-color: #E6F4FF;  /* Светло-голубой фон */
+}
+
