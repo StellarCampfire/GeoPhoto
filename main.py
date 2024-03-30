@@ -547,10 +547,7 @@ class SettingsWindow(BaseWindow):
 
         self.ui.back_pushButton.clicked.connect(lambda: self.switch_interface(StartWindow))
 
-        self.ui.take_photo_camera.clicked.connect(lambda: self.get_photo_manager().set_controls_and_take_photo(
-            {'name': 'someproject'},
-            {'name': 'well'},
-            IntervalSettings(), self.ui.sutter_speed_spinBox.value(), self.ui.iso_spinBox.value()))
+        self.ui.take_photo_camera.clicked.connect(self.set_controls_and_show_photo)
 
     def set_controls_and_show_photo(self):
         photo_path = self.get_photo_manager().set_controls_and_take_photo(
