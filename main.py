@@ -555,6 +555,7 @@ class SettingsWindow(BaseWindow):
             Well(0, 'test_well'), IntervalSettings(),
             self.ui.sutter_speed_spinBox.value(),
             self.ui.iso_spinBox.value())
+        self.switch_interface(SettingsPreviewPhoto, photo_path)
 
 
 class SettingsPreviewPhoto(BaseWindow):
