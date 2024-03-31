@@ -2,18 +2,18 @@ import os
 import sys
 import json
 import logging
-from logger_config import setup_logging
-from src.data_base_module import DBManager
-from src.models import IntervalSettings, IntervalCondition, Project, Well, Interval, Photo
+from configparser import ConfigParser
+from src.setup_logging import setup_logging
+from src.data_base_manager import DataBaseManager
+from src.models import IntervalSettings, IntervalCondition, Project, Well
 
-from PyQt5.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout, QPushButton,
-                             QScrollArea, QMainWindow, QLabel, QStackedWidget, QLineEdit, QDoubleSpinBox,
-                             QRadioButton, QCheckBox, QFileDialog, QSpacerItem, QSizePolicy, QGraphicsScene)
-from PyQt5.QtCore import Qt, QEvent, QTimer
+from PyQt5.QtWidgets import (QApplication, QMainWindow, QStackedWidget, QDoubleSpinBox,
+                             QFileDialog, QSpacerItem, QSizePolicy)
+from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QPixmap
 
-from PyQt5.QtCore import QEvent, QPropertyAnimation, QEasingCurve
-from PyQt5.QtWidgets import QWidget, QSpinBox, QPushButton, QHBoxLayout
+from PyQt5.QtCore import QEvent
+from PyQt5.QtWidgets import QWidget, QPushButton
 
 from resources.py.StartForm import Ui_StartForm
 from resources.py.NewProjectForm import Ui_NewProjectForm
@@ -84,6 +84,9 @@ class BaseWindow(QMainWindow):
 
     def get_photo_manager(self):
         return self.app.photo_manager
+
+    def get_config(self):
+        return self.app.config_manager
 
 
 class CustomSpinBox(QWidget):
@@ -537,13 +540,13 @@ class SettingsWindow(BaseWindow):
         self.ui = Ui_SettingsForm()
         self.ui.setupUi(self.centralwidget)
 
-        self.ui.sutter_speed_spinBox.setMinimum(37)
-        self.ui.sutter_speed_spinBox.setMaximum(100000)
-        self.ui.sutter_speed_spinBox.setValue(1000)
+        self.ui.sutter_speed_spinBox.setMinimum(int(self.get_config().get('camera', 'exposition_min', fallback='37')))
+        self.ui.sutter_speed_spinBox.setMaximum(int(self.get_config().get('camera', 'exposition_max', fallback='300000')))
+        self.ui.sutter_speed_spinBox.setValue(int(self.get_config().get('camera', 'exposition', fallback='50000')))
 
-        self.ui.iso_spinBox.setMinimum(0)
-        self.ui.iso_spinBox.setMaximum(100)
-        self.ui.iso_spinBox.setValue(1)
+        self.ui.iso_spinBox.setMinimum(int(self.get_config().get('camera', 'iso_min', fallback='0')))
+        self.ui.iso_spinBox.setMaximum(int(self.get_config().get('camera', 'iso_max', fallback='10000')))
+        self.ui.iso_spinBox.setValue(int(self.get_config().get('camera', 'iso', fallback='100')))
 
         self.ui.back_pushButton.clicked.connect(lambda: self.switch_interface(StartWindow))
 
@@ -588,14 +591,16 @@ class SettingsPreviewPhoto(BaseWindow):
 
 
 class App(QMainWindow):
-    def __init__(self):
+    def __init__(self, config_manager):
         super().__init__()
         self.db_manager = None
         self.photo_manager = None
+        self.config_manager = config_manager
+
         try:
             logging.info(f"Trying to start photo manager")
-            from src.photo_module import PhotoModule
-            self.photo_manager = PhotoModule()
+            from src.photo_manager import PhotoManager
+            self.photo_manager = PhotoManager()
             logging.info(f"Photo manager stated.")
             self.photo_manager.get_exposure_settins_value()
         except Exception as e:
@@ -603,8 +608,8 @@ class App(QMainWindow):
 
         if self.photo_manager is None:
             logging.info(f"Trying to start photo manager EMULATOR")
-            from src.photo_module_emulator import PhotoModuleEmulator
-            self.photo_manager = PhotoModuleEmulator()
+            from src.photo_manager_emulator import PhotoManagerEmulator
+            self.photo_manager = PhotoManagerEmulator()
             logging.info(f"Photo manager EMULATOR stated.")
 
         self.photo_manager.clear_temp_storage()
@@ -630,7 +635,7 @@ class App(QMainWindow):
             widget_to_remove.deleteLater()
 
     def init_database_connection(self, project):
-        self.db_manager = DBManager(project)
+        self.db_manager = DataBaseManager(project)
 
     def close_database_connection(self):
         if self.db_manager is not None:
@@ -686,11 +691,14 @@ class App(QMainWindow):
 
 
 if __name__ == '__main__':
-    setup_logging()
+    config = ConfigParser()
+    config.read('config.ini')
+
+    setup_logging(config)
 
     app = QApplication(sys.argv)
 
-    window = App()
+    window = App(config)
     window.showFullScreen()
     # window.show()
 

@@ -1,10 +1,10 @@
 import os
 import sqlite3
 import logging
-from src.models import IntervalCondition, Project, Well, Interval, Photo
+from src.models import IntervalCondition, Well, Interval, Photo
 
 
-class DBManager:
+class DataBaseManager:
     def __init__(self, project):
         database_dir = os.path.join(project.path, "database")
         db_path = os.path.join(database_dir, f"{project.name}_geo_photo_database.db")

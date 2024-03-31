@@ -3,7 +3,7 @@ import shutil
 import logging
 
 
-class PhotoModuleEmulator:
+class PhotoManagerEmulator:
     def __init__(self):
         self.temp_photo_path = os.path.join("temp", "photos")
         if not os.path.exists(self.temp_photo_path):

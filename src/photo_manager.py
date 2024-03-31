@@ -5,7 +5,7 @@ import json
 from picamera2 import Picamera2
 
 
-class PhotoModule:
+class PhotoManager:
     def __init__(self):
         if not self.check_cameras():
             logging.error("At least 2 cameras are required for PhotoModule to work.")
