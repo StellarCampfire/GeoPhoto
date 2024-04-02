@@ -6,16 +6,41 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>682</width>
+    <height>533</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true">QWidget {
+    background-color: rgb(236, 232, 224);
+}
+
+QPushButton {
+    background-color: rgb(255, 150, 0);
+
+    color: bllack;
+    border-radius: 5px;
+	padding: 25;
+	font: 57 18pt &quot;Sono Medium&quot;;
+}
+
+</string>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="leftMargin">
+    <number>50</number>
+   </property>
+   <property name="rightMargin">
+    <number>50</number>
+   </property>
    <item>
     <widget class="QPushButton" name="new_project_button">
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
      <property name="text">
       <string>Создать новый проект</string>
      </property>

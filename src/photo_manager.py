@@ -3,6 +3,7 @@ import shutil
 import logging
 import json
 from picamera2 import Picamera2
+from libcamera import controls
 
 
 class PhotoManager:
@@ -14,13 +15,15 @@ class PhotoManager:
         self.first_camera = Picamera2(0)
         self.second_camera = Picamera2(1)
 
-        config = self.first_camera.create_preview_configuration()
+        config = self.first_camera.create_still_configuration()
 
         config["controls"]["AeEnable"] = False
 
         # Устанавливаем ручные настройки экспозиции
         config["controls"]["ExposureTime"] = 1000  # Выдержка в микросекундах, например, 1/50 секунды
         config["controls"]["AnalogueGain"] = 1.0
+
+        self.first_camera.set_controls({"AfMode": controls.AfModeEnum.Manual, "LensPosition": 0.0})
 
         self.first_camera.configure(config)
         self.second_camera.configure(config)
@@ -110,12 +113,12 @@ class PhotoManager:
         min_exp, max_exp, default_exp = self.first_camera.camera_controls["ExposureTime"]
         logging.info(f'Camer exposure settins: min {min_exp}, max{max_exp}, default{default_exp}')
 
-    def set_controls(self, exp, iso):
-        self.first_camera.set_controls({"ExposureTime": exp, "AnalogueGain": iso})
-        self.second_camera.set_controls({"ExposureTime": exp, "AnalogueGain": iso})
+    def set_controls(self, exp, iso, lens_position):
+        self.first_camera.set_controls({"ExposureTime": exp, "AnalogueGain": iso, "LensPosition": lens_position})
+        self.second_camera.set_controls({"ExposureTime": exp, "AnalogueGain": iso, "LensPosition": lens_position})
 
-    def set_controls_and_take_photo(self, project, well, interval_settings, exp, iso):
-        self.set_controls(exp, iso)
+    def set_controls_and_take_photo(self, project, well, interval_settings, exp, iso, lens_position):
+        self.set_controls(exp, iso, lens_position)
         return self.take_photo_with_first_camera(project, well, interval_settings)
 
     @staticmethod

@@ -1,0 +1,10 @@
+QWidget {
+    background-color: rgb(170, 170, 170);
+}
+
+QPushButton {
+    background-color: blue;
+    color: white;
+    border-radius: 5px;
+}
+
