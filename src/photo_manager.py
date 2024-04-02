@@ -115,8 +115,8 @@ class PhotoManager:
         logging.info(f'Camer exposure settins: min {min_exp}, max{max_exp}, default{default_exp}')
 
     def set_controls(self, exp, iso, lens_position):
-        self.first_camera.set_controls({"ExposureTime": exp, "AnalogueGain": iso, "LensPosition": lens_position})
-        self.second_camera.set_controls({"ExposureTime": exp, "AnalogueGain": iso, "LensPosition": lens_position})
+        self.first_camera.set_controls({"ExposureTime": exp, "AnalogueGain": iso})
+        self.second_camera.set_controls({"ExposureTime": exp, "AnalogueGain": iso})
 
     def set_controls_and_take_photo(self, project, well, interval_settings, exp, iso, lens_position):
         self.set_controls(exp, iso, lens_position)
