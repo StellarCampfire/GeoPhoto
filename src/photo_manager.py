@@ -23,7 +23,8 @@ class PhotoManager:
         config["controls"]["ExposureTime"] = 1000  # Выдержка в микросекундах, например, 1/50 секунды
         config["controls"]["AnalogueGain"] = 1.0
 
-        self.first_camera.set_controls({"AfMode": controls.AfModeEnum.Manual, "LensPosition": 0.0})
+        # self.first_camera.set_controls({"AfMode": controls.AfModeEnum.Manual, "LensPosition": 0.0})
+        self.first_camera.set_controls({"LensPosition": 0.0})
 
         self.first_camera.configure(config)
         self.second_camera.configure(config)
