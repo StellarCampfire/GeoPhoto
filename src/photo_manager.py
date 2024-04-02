@@ -15,7 +15,7 @@ class PhotoManager:
         self.first_camera = Picamera2(0)
         self.second_camera = Picamera2(1)
 
-        config = self.first_camera.create_still_configuration()
+        config = Picamera2.create_still_configuration()
 
         config["controls"]["AeEnable"] = False
 
