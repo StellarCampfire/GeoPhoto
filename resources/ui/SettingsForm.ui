@@ -22,86 +22,6 @@
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_6">
-     <item>
-      <spacer name="horizontalSpacer_11">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QLabel" name="label_6">
-       <property name="text">
-        <string>Фокусировка</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QSpinBox" name="focus_spinBox"/>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer_12">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-    </layout>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_7">
-     <item>
-      <spacer name="horizontalSpacer_13">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QLabel" name="label_7">
-       <property name="text">
-        <string>Глубина резкости</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QSpinBox" name="deep_sharp_spinBox"/>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer_14">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-    </layout>
-   </item>
-   <item>
     <layout class="QHBoxLayout" name="horizontalLayout_5">
      <item>
       <spacer name="horizontalSpacer_9">
@@ -117,14 +37,35 @@
       </spacer>
      </item>
      <item>
-      <widget class="QLabel" name="label_5">
+      <widget class="QPushButton" name="exp_decrease_pushButton">
        <property name="text">
-        <string>Выдержка</string>
+        <string>-</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QSpinBox" name="sutter_speed_spinBox"/>
+      <widget class="QLabel" name="label_5">
+       <property name="text">
+        <string>Экспозиция</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QSpinBox" name="exp_spinBox">
+       <property name="buttonSymbols">
+        <enum>QAbstractSpinBox::NoButtons</enum>
+       </property>
+       <property name="singleStep">
+        <number>1000</number>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="exp_increase_pushButton">
+       <property name="text">
+        <string>+</string>
+       </property>
+      </widget>
      </item>
      <item>
       <spacer name="horizontalSpacer_10">
@@ -157,6 +98,13 @@
       </spacer>
      </item>
      <item>
+      <widget class="QPushButton" name="iso_decrease_pushButton">
+       <property name="text">
+        <string>-</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QLabel" name="label_8">
        <property name="text">
         <string>ISO</string>
@@ -164,7 +112,21 @@
       </widget>
      </item>
      <item>
-      <widget class="QSpinBox" name="iso_spinBox"/>
+      <widget class="QSpinBox" name="iso_spinBox">
+       <property name="buttonSymbols">
+        <enum>QAbstractSpinBox::NoButtons</enum>
+       </property>
+       <property name="singleStep">
+        <number>10</number>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="iso_increase_pushButton">
+       <property name="text">
+        <string>+</string>
+       </property>
+      </widget>
      </item>
      <item>
       <spacer name="horizontalSpacer_16">
@@ -182,7 +144,7 @@
     </layout>
    </item>
    <item>
-    <widget class="QPushButton" name="take_photo_camera">
+    <widget class="QPushButton" name="take_photo_camera_1">
      <property name="text">
       <string>Снять фото камерой 1</string>
      </property>

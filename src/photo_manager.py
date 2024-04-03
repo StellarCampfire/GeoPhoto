@@ -118,9 +118,12 @@ class PhotoManager:
         self.first_camera.set_controls({"ExposureTime": exp, "AnalogueGain": iso})
         self.second_camera.set_controls({"ExposureTime": exp, "AnalogueGain": iso})
 
-    def set_controls_and_take_photo(self, project, well, interval_settings, exp, iso, lens_position):
+    def set_controls_and_take_photo(self, project, well, interval_settings, camera_num, exp, iso, lens_position):
         self.set_controls(exp, iso, lens_position)
-        return self.take_photo_with_first_camera(project, well, interval_settings)
+        if camera_num == 1:
+            return self.take_photo_with_first_camera(project, well, interval_settings)
+        else:
+            return self.take_photo_with_second_camera(project, well, interval_settings)
 
     @staticmethod
     def make_photo_name(project, well, interval_settings, photo_num):
