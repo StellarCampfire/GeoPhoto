@@ -506,7 +506,7 @@ class ProjectWindow(BaseWindow):
         self.switch_interface(StartWindow)
 
 
-class StartWindow(BaseWindow):
+class   StartWindow(BaseWindow):
     def __init__(self, app_instance, parent=None):
         super().__init__(app_instance, parent)
         self.ui = Ui_StartForm()
@@ -517,10 +517,10 @@ class StartWindow(BaseWindow):
         self.ui.settings_button.clicked.connect(lambda: self.switch_interface(SettingsWindow))
 
         # Focus
-        self.focusable_elements.extend([
+        self.install_focusable_elements(
             self.ui.new_project_button,
             self.ui.open_project_button,
-            self.ui.settings_button])
+            self.ui.settings_button)
 
         self.start_focus = self.ui.open_project_button
 
