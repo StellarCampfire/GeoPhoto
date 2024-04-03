@@ -27,6 +27,15 @@ QPushButton {
 	font: 57 18pt &quot;Sono Medium&quot;;
 }
 
+QPushButton:focus {
+    background-color: rgb(255, 100, 0);
+
+    color: bllack;
+    border-radius: 5px;
+	padding: 25;
+	font: 57 18pt &quot;Sono Medium&quot;;
+}
+
 </string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">

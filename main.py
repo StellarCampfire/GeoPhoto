@@ -24,7 +24,7 @@ from resources.py.IntervalForm import Ui_IntervalForm
 from resources.py.NewIntervalForm import Ui_NewIntervalForm
 from resources.py.PhotoReviewForm import Ui_PhotoReviewForm
 from resources.py.PhotoViewForm import Ui_PhotoViewForm
-from resources.py.SattingsForm import Ui_SettingsForm
+from resources.py.SettingsForm import Ui_SettingsForm
 
 INTERVAL_STEP = 0.5
 
@@ -305,12 +305,13 @@ class NewProjectWindow(BaseWindow):
         self.ui.create_new_project_button.clicked.connect(self.onCreateNewProjectClicked)
 
         # Focus
-        self.focusable_elements.append(self.ui.back_button)
-        self.focusable_elements.append(self.ui.project_name_input)
-        self.focusable_elements.append(self.ui.choose_path_button)
-        self.focusable_elements.append(self.ui.create_new_project_button)
+        self.install_focusable_elements(
+            self.ui.back_button,
+            self.ui.project_name_input,
+            self.ui.choose_path_button,
+            self.ui.create_new_project_button)
 
-        self.start_focus = self.ui.back_button
+        self.start_focus = self.ui.project_name_input
 
     def chooseProjectPath(self):
         project_dir = QFileDialog.getExistingDirectory(self, "Выберите папку для нового проекта")
@@ -478,6 +479,8 @@ class ProjectWindow(BaseWindow):
 
         self.project = project
 
+        self.ui.project_name_label.setText(self.project.name)
+
         self.ui.back_button.clicked.connect(lambda: self.close_project())
 
         self.ui.new_well_button.clicked.connect(lambda: self.switch_interface(
@@ -547,26 +550,46 @@ class SettingsWindow(BaseWindow):
         self.ui = Ui_SettingsForm()
         self.ui.setupUi(self.centralwidget)
 
-        self.ui.sutter_speed_spinBox.setMinimum(int(self.get_config().get('camera', 'exposition_min', fallback='37')))
-        self.ui.sutter_speed_spinBox.setMaximum(
-            int(self.get_config().get('camera', 'exposition_max', fallback='300000')))
-        self.ui.sutter_speed_spinBox.setValue(int(self.get_config().get('camera', 'exposition', fallback='50000')))
+        self.exp_spin_box = CustomSpinBox(
+            self.ui.exp_spinBox,
+            self.ui.exp_decrease_pushButton,
+            self.ui.exp_increase_pushButton)
 
-        self.ui.iso_spinBox.setMinimum(int(self.get_config().get('camera', 'iso_min', fallback='0')))
-        self.ui.iso_spinBox.setMaximum(int(self.get_config().get('camera', 'iso_max', fallback='10000')))
-        self.ui.iso_spinBox.setValue(int(self.get_config().get('camera', 'iso', fallback='100')))
+        self.exp_spin_box.spin_box.setMinimum(int(self.get_config().get('camera', 'exposition_min', fallback='37')))
+        self.exp_spin_box.spin_box.setMaximum(
+            int(self.get_config().get('camera', 'exposition_max', fallback='300000')))
+        self.exp_spin_box.spin_box.setValue(int(self.get_config().get('camera', 'exposition', fallback='50000')))
+
+        self.iso_spin_box = CustomSpinBox(
+            self.ui.iso_spinBox,
+            self.ui.iso_decrease_pushButton,
+            self.ui.iso_increase_pushButton)
+
+        self.iso_spin_box.spin_box.setMinimum(int(self.get_config().get('camera', 'iso_min', fallback='0')))
+        self.iso_spin_box.spin_box.setMaximum(int(self.get_config().get('camera', 'iso_max', fallback='10000')))
+        self.iso_spin_box.spin_box.setValue(int(self.get_config().get('camera', 'iso', fallback='100')))
 
         self.ui.back_pushButton.clicked.connect(lambda: self.switch_interface(StartWindow))
 
-        self.ui.take_photo_camera.clicked.connect(self.set_controls_and_show_photo)
+        self.ui.take_photo_camera_1.clicked.connect(lambda: self.set_controls_and_show_photo(1))
+        self.ui.take_photo_camera_2.clicked.connect(lambda: self.set_controls_and_show_photo(2))
 
-    def set_controls_and_show_photo(self):
+        # Focus
+        self.install_focusable_elements(
+            self.ui.back_pushButton,
+            self.ui.exp_spinBox,
+            self.ui.iso_spinBox,
+            self.ui.take_photo_camera_1,
+            self.ui.take_photo_camera_2)
+
+    def set_controls_and_show_photo(self, camera_num):
         photo_path = self.get_photo_manager().set_controls_and_take_photo(
             Project('test_project', './'),
-            Well(0, 'test_well'), IntervalSettings(),
-            self.ui.sutter_speed_spinBox.value(),
-            self.ui.iso_spinBox.value(),
-            self.ui.focus_spinBox.value())
+            Well(0, 'test_well'),
+            IntervalSettings(),
+            camera_num,
+            self.exp_spin_box.value(),
+            self.iso_spin_box.value())
         self.switch_interface(SettingsPreviewPhoto, photo_path)
 
 
