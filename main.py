@@ -591,7 +591,7 @@ class SettingsWindow(BaseWindow):
             IntervalSettings(),
             camera_num,
             int(self.ui.exp_spinBox.value()),
-            int(self.ui.iso_spinBox.value())
+            int(self.ui.iso_spinBox.value()))
         self.switch_interface(SettingsPreviewPhoto, photo_path)
 
 
