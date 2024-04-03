@@ -583,15 +583,15 @@ class SettingsWindow(BaseWindow):
             self.ui.take_photo_camera_2)
 
     def set_controls_and_show_photo(self, camera_num):
-        self.get_config().set('camera', 'exposition', self.ui.exp_spinBox.value())
-        self.get_config().set('camera', 'iso', self.ui.iso_spinBox.value())
+        self.get_config().set('camera', 'exposition', str(self.ui.exp_spinBox.value()))
+        self.get_config().set('camera', 'iso', str(self.ui.iso_spinBox.value()))
         photo_path = self.get_photo_manager().set_controls_and_take_photo(
             Project('test_project', './'),
             Well(0, 'test_well'),
             IntervalSettings(),
             camera_num,
-            self.ui.exp_spinBox.value(),
-            self.ui.iso_spinBox.value())
+            int(self.ui.exp_spinBox.value()),
+            int(self.ui.iso_spinBox.value())
         self.switch_interface(SettingsPreviewPhoto, photo_path)
 
 
