@@ -1,8 +1,8 @@
-from resources.py.SattingsForm import Ui_SettingsForm
-from src.ui_logic.BaseWindow import BaseWindow
+from src.views.BaseWindow import BaseWindow
+from src.views.StartWindow import StartWindow
 from src.models import Project, Well, IntervalSettings
 
-
+from resources.py.SattingsForm import Ui_SettingsForm
 
 
 class SettingsWindow(BaseWindow):
@@ -21,12 +21,13 @@ class SettingsWindow(BaseWindow):
         self.ui.iso_spinBox.setMaximum(int(self.get_config().get('camera', 'iso_max', fallback='10000')))
         self.ui.iso_spinBox.setValue(int(self.get_config().get('camera', 'iso', fallback='100')))
 
-        self.ui.focus_spinBox.setMinimum(int(0))
-        self.ui.focus_spinBox.setMaximum(int(10000))
-        self.ui.iso_spinBox.setValue(0)
-
         self.ui.back_pushButton.clicked.connect(lambda: self.switch_interface(StartWindow))
         self.ui.take_photo_camera.clicked.connect(self.set_controls_and_show_photo)
+
+        self.install_focusable_elements(
+            self.ui.sutter_speed_spinBox,
+            self.ui.iso_spinBox,
+        )
 
     def set_controls_and_show_photo(self):
         photo_path = self.get_photo_manager().set_controls_and_take_photo(

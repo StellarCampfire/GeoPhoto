@@ -49,6 +49,13 @@ class BaseWindow(QMainWindow):
         for element in self.focusable_elements:
             element.installEventFilter(self)
 
+    def install_focusable_elements(self, *args):
+        self.focusable_elements.clear()
+        self.focusable_elements.extend(args)
+        self.install_focus_event_filters()
+        if len(self.focusable_elements) > 0:
+            self.start_focus = self.focusable_elements[0]
+
     def eventFilter(self, source, event):
         if event.type() == QEvent.KeyPress and source in self.focusable_elements:
             idx = self.focusable_elements.index(source)
@@ -168,8 +175,6 @@ class PhotoReviewWindow(BaseWindow):
 
         self.ui.yes_pushButton.clicked.connect(self.on_yes_clicked)
         self.ui.no_pushButton.clicked.connect(self.on_no_clicked)
-
-
 
     def on_yes_clicked(self):
         if self.current_photo_index < len(self.photos) - 1:
@@ -384,7 +389,8 @@ class IntervalWindow(BaseWindow):
             photo_button = QPushButton(photo.name)
             self.ui.photos_buttons_verticalLayout.layout().addWidget(photo_button)
             self.focusable_elements.append(photo_button)
-            photo_button.clicked.connect(lambda _, p=photo: self.switch_interface(PhotoViewWindow, self.project, self.well, self.interval, p))
+            photo_button.clicked.connect(
+                lambda _, p=photo: self.switch_interface(PhotoViewWindow, self.project, self.well, self.interval, p))
             self.focusable_elements.append(photo_button)
 
         self.focusable_elements.append(self.ui.next_interval_pushButton)
@@ -533,6 +539,7 @@ class StartWindow(BaseWindow):
                 self.app.init_database_connection(project)
                 self.switch_interface(ProjectWindow, project)
 
+
 class SettingsWindow(BaseWindow):
     def __init__(self, app_instance, parent=None):
         super().__init__(app_instance, parent)
@@ -541,7 +548,8 @@ class SettingsWindow(BaseWindow):
         self.ui.setupUi(self.centralwidget)
 
         self.ui.sutter_speed_spinBox.setMinimum(int(self.get_config().get('camera', 'exposition_min', fallback='37')))
-        self.ui.sutter_speed_spinBox.setMaximum(int(self.get_config().get('camera', 'exposition_max', fallback='300000')))
+        self.ui.sutter_speed_spinBox.setMaximum(
+            int(self.get_config().get('camera', 'exposition_max', fallback='300000')))
         self.ui.sutter_speed_spinBox.setValue(int(self.get_config().get('camera', 'exposition', fallback='50000')))
 
         self.ui.iso_spinBox.setMinimum(int(self.get_config().get('camera', 'iso_min', fallback='0')))
@@ -588,7 +596,6 @@ class SettingsPreviewPhoto(BaseWindow):
         super().resizeEvent(event)
         if hasattr(self, 'ui'):
             self.load_image()
-
 
 
 class App(QMainWindow):

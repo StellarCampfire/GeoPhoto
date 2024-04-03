@@ -19,6 +19,13 @@ class BaseWindow(QMainWindow):
         for element in self.focusable_elements:
             element.installEventFilter(self)
 
+    def install_focusable_elements(self, *args):
+        self.focusable_elements.clear()
+        self.focusable_elements.extend(args)
+        self.install_focus_event_filters()
+        if len(self.focusable_elements) > 0:
+            self.start_focus = self.focusable_elements[0]
+
     def eventFilter(self, source, event):
         if event.type() == QEvent.KeyPress and source in self.focusable_elements:
             idx = self.focusable_elements.index(source)
