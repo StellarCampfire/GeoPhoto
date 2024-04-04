@@ -176,6 +176,13 @@ class PhotoReviewWindow(BaseWindow):
         self.ui.yes_pushButton.clicked.connect(self.on_yes_clicked)
         self.ui.no_pushButton.clicked.connect(self.on_no_clicked)
 
+        # Focus
+        self.install_focusable_elements(
+            self.ui.yes_pushButton,
+            self.ui.no_pushButton)
+
+        self.start_focus = self.ui.yes_pushButton
+
     def on_yes_clicked(self):
         if self.current_photo_index < len(self.photos) - 1:
             self.current_photo_index += 1
@@ -265,16 +272,17 @@ class NewIntervalWindow(BaseWindow):
 
         self.ui.create_new_interval_button.clicked.connect(self.onCreateNewIntervalClicked)
 
-        self.focusable_elements.append(self.ui.back_button)
-        self.focusable_elements.append(self.ui.interval_from_doubleSpinBox)
-        self.focusable_elements.append(self.ui.interval_to_doubleSpinBox)
-        self.focusable_elements.append(self.ui.is_marked_checkBox)
-        self.focusable_elements.append(self.ui.wet_radioButton)
-        self.focusable_elements.append(self.ui.dry_radioButton)
-        self.focusable_elements.append(self.ui.create_new_interval_button)
+        # Focus
+        self.install_focusable_elements(
+            self.ui.back_button,
+            self.ui.interval_from_doubleSpinBox,
+            self.ui.interval_to_doubleSpinBox,
+            self.ui.is_marked_checkBox,
+            self.ui.wet_radioButton,
+            self.ui.dry_radioButton,
+            self.ui.create_new_interval_button)
 
-        self.install_focus_event_filters()
-        self.start_focus = self.ui.back_button
+        self.start_focus = self.ui.create_new_interval_button
 
     def onCreateNewIntervalClicked(self):
         interval_from = self.ui.interval_from_doubleSpinBox.value()
@@ -336,10 +344,19 @@ class NewWellWindow(BaseWindow):
         self.ui.setupUi(self.centralwidget)
         self.project = project
 
-        self.ui.project_name_input.setText(project.name)
+        self.ui.project_name_label.setText(project.name)
 
         self.ui.back_button.clicked.connect(lambda: self.switch_interface(ProjectWindow, self.project))
         self.ui.create_new_well.clicked.connect(lambda: self.onCreateNewWellClicked())
+
+        # Focus
+        self.install_focusable_elements(
+            self.ui.back_button,
+            self.ui.well_name_input,
+            self.ui.create_new_well
+            )
+
+        self.start_focus = self.ui.well_name_input
 
     def onCreateNewWellClicked(self):
         well_name = self.ui.well_name_input.text()
@@ -383,19 +400,26 @@ class IntervalWindow(BaseWindow):
                 self.interval.is_marked,
                 self.interval.condition)))
 
-        self.focusable_elements.append(self.ui.back_button)
+        photos_buttons_list = []
 
         photos = self.get_database_manager().get_all_photos_by_interval_id(self.interval.id)
         for photo in photos:
             photo_button = QPushButton(photo.name)
             self.ui.photos_buttons_verticalLayout.layout().addWidget(photo_button)
-            self.focusable_elements.append(photo_button)
+            photos_buttons_list.append(photo_button)
             photo_button.clicked.connect(
                 lambda _, p=photo: self.switch_interface(PhotoViewWindow, self.project, self.well, self.interval, p))
             self.focusable_elements.append(photo_button)
 
         self.focusable_elements.append(self.ui.next_interval_pushButton)
 
+        # Focus
+        self.install_focusable_elements(
+            self.ui.back_button,
+            *photos_buttons_list,
+            self.ui.next_interval_pushButton)
+
+        self.start_focus = self.ui.next_interval_pushButton
 
 class PhotoViewWindow(BaseWindow):
     def __init__(self, project, well, interval, photo, app_instance, parent=None):
@@ -410,6 +434,10 @@ class PhotoViewWindow(BaseWindow):
 
         self.ui.back_pushButton.clicked.connect(
             lambda: self.switch_interface(IntervalWindow, self.project, self.well, self.interval))
+
+        # Focus
+        self.install_focusable_elements(
+            self.ui.back_pushButton)
 
     def load_image(self):
         pixmap = QPixmap(self.photo.path)
@@ -454,11 +482,13 @@ class WellWindow(BaseWindow):
 
         self.focusable_elements.append(self.ui.back_button)
 
+        intervals_buttons_list = []
+
         intervals = self.get_database_manager().get_all_intervals_by_well_id(self.well.id)
         for interval in intervals:
             interval_button = QPushButton(interval.get_full_name())
             self.ui.intervals_buttons_verticalLayout.layout().addWidget(interval_button)
-            self.focusable_elements.append(interval_button)
+            intervals_buttons_list.append(interval_button)
             interval_button.clicked.connect(lambda _, i=interval: self.switch_interface(
                 IntervalWindow,
                 self.project,
@@ -468,7 +498,13 @@ class WellWindow(BaseWindow):
         spacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
         self.ui.intervals_buttons_verticalLayout.addItem(spacer)
 
-        self.start_focus = self.ui.back_button
+        # Focus
+        self.install_focusable_elements(
+            self.ui.back_button,
+            self.ui.new_interval_button,
+            *intervals_buttons_list)
+
+        self.start_focus = self.ui.new_interval_button
 
 
 class ProjectWindow(BaseWindow):
@@ -487,14 +523,13 @@ class ProjectWindow(BaseWindow):
             NewWellWindow,
             self.project))
 
-        self.focusable_elements.append(self.ui.back_button)
-        self.focusable_elements.append(self.ui.new_well_button)
+        wells_buttons_list = []
 
         wells = self.get_database_manager().get_all_wells()
         for well in wells:
             well_button = QPushButton(well.name)
             self.ui.wells_buttons_verticalLayout.layout().addWidget(well_button)
-            self.focusable_elements.append(well_button)
+            wells_buttons_list.append(well_button)
             well_button.clicked.connect(
                 lambda _, w=well: self.switch_interface(
                     WellWindow, self.project, w))
@@ -502,7 +537,15 @@ class ProjectWindow(BaseWindow):
         spacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
         self.ui.wells_buttons_verticalLayout.addItem(spacer)
 
-        self.start_focus = self.ui.back_button
+        # Focus
+        self.install_focusable_elements(
+            self.ui.back_button,
+            self.ui.new_well_button,
+            *wells_buttons_list)
+
+        self.start_focus = self.ui.new_well_button
+
+
 
     def close_project(self):
         self.app.close_database_connection()
@@ -606,6 +649,11 @@ class SettingsPreviewPhoto(BaseWindow):
 
         self.ui.back_pushButton.clicked.connect(
             lambda: self.switch_interface(SettingsWindow))
+
+        # Focus
+        self.install_focusable_elements(
+            self.ui.back_pushButton)
+
 
     def load_image(self):
         pixmap = QPixmap(self.photo_path)
