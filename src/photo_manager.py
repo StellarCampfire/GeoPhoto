@@ -126,10 +126,10 @@ class PhotoManager:
             return self.take_photo_with_second_camera(project, well, interval_settings)
 
     def get_default_still_config(self):
-        print(self.first_camera.create_still_configuration())
+        logging.info(self.first_camera.create_still_configuration())
         min_exp, max_exp, default_exp = self.first_camera.camera_controls["ExposureTime"]
-        print(f'{str(min_exp)} {str(max_exp)} {str(default_exp)}')
-        print(self.first_camera.camera_controls)
+        logging.info(f'{str(min_exp)} {str(max_exp)} {str(default_exp)}')
+        logging.info(self.first_camera.camera_controls)
 
 
     @staticmethod
