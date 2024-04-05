@@ -6,12 +6,40 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>800</width>
+    <height>600</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QLabel {
+	text-align: center;
+	font: 57 16pt &quot;Sono Medium&quot;;
+}
+
+QWidget {
+    background-color: rgb(208, 225, 249);
+}
+
+QPushButton {
+    background-color: rgb(77, 100, 141);
+
+    color: white;
+    border-radius: 5px;
+	padding: 25;
+	font: 57 18pt &quot;Sono Medium&quot;;
+}
+
+QPushButton:focus {
+    background-color: rgb(40, 54, 85);
+
+    color: white;
+    border-radius: 5px;
+	padding: 25;
+	font: 57 18pt &quot;Sono Medium&quot;;
+}</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -73,7 +101,11 @@
     <widget class="QLabel" name="label">
      <property name="font">
       <font>
-       <pointsize>11</pointsize>
+       <family>Sono Medium</family>
+       <pointsize>16</pointsize>
+       <weight>7</weight>
+       <italic>false</italic>
+       <bold>false</bold>
       </font>
      </property>
      <property name="text">
@@ -94,8 +126,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>374</width>
-        <height>149</height>
+        <width>774</width>
+        <height>338</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2">
