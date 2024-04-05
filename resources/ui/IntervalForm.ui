@@ -6,12 +6,41 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>800</width>
+    <height>600</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QWidget {
+    background-color: rgb(208, 225, 249);
+}
+
+QPushButton {
+    background-color: rgb(77, 100, 141);
+
+    color: white;
+    border-radius: 5px;
+	padding: 25;
+	font: 57 18pt &quot;Sono Medium&quot;;
+}
+
+QPushButton:focus {
+    background-color: rgb(40, 54, 85);
+
+    color: white;
+    border-radius: 5px;
+	padding: 25;
+	font: 57 18pt &quot;Sono Medium&quot;;
+}
+
+QLabel {
+	font: 57 16pt &quot;Sono Medium&quot;;
+}
+
+</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_3">
    <item>
@@ -116,8 +145,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>386</width>
-        <height>213</height>
+        <width>774</width>
+        <height>397</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_4">

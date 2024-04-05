@@ -15,22 +15,22 @@
   </property>
   <property name="styleSheet">
    <string notr="true">QWidget {
-    background-color: rgb(236, 232, 224);
+    background-color: rgb(208, 225, 249);
 }
 
 QPushButton {
-    background-color: rgb(255, 150, 0);
+    background-color: rgb(77, 100, 141);
 
-    color: bllack;
+    color: white;
     border-radius: 5px;
 	padding: 25;
 	font: 57 18pt &quot;Sono Medium&quot;;
 }
 
 QPushButton:focus {
-    background-color: rgb(255, 100, 0);
+    background-color: rgb(40, 54, 85);
 
-    color: bllack;
+    color: white;
     border-radius: 5px;
 	padding: 25;
 	font: 57 18pt &quot;Sono Medium&quot;;
