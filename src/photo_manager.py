@@ -29,8 +29,8 @@ class PhotoManager:
         self.first_camera.configure(config)
         self.second_camera.configure(config)
 
-        self.first_camera.contols.AeEnable = False
-        self.second_camera.contols.AeEnable = False
+        self.first_camera.controls.AeEnable = False
+        self.second_camera.controls.AeEnable = False
 
         self.temp_photo_path = os.path.join("temp", "photos")
         if not os.path.exists(self.temp_photo_path):
