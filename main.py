@@ -603,6 +603,7 @@ class SettingsWindow(BaseWindow):
         self.exp_spin_box.spin_box.setMaximum(
             int(self.get_config().get('camera', 'exposition_max', fallback='8')))
         self.exp_spin_box.spin_box.setValue(int(self.get_config().get('camera', 'exposition', fallback='0')))
+        self.exp_spin_box.setSingleStep(1)
 
         self.iso_spin_box = CustomSpinBox(
             self.ui.iso_spinBox,
