@@ -626,6 +626,8 @@ class SettingsWindow(BaseWindow):
             self.ui.take_photo_camera_1,
             self.ui.take_photo_camera_2)
 
+        self.get_photo_manager().get_default_still_config()
+
     def set_controls_and_show_photo(self, camera_num):
         self.get_config().set('camera', 'exposition', str(self.ui.exp_spinBox.value()))
         self.get_config().set('camera', 'iso', str(self.ui.iso_spinBox.value()))
