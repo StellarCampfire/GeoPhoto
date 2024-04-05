@@ -599,10 +599,10 @@ class SettingsWindow(BaseWindow):
             self.ui.exp_decrease_pushButton,
             self.ui.exp_increase_pushButton)
 
-        self.exp_spin_box.spin_box.setMinimum(int(self.get_config().get('camera', 'exposition_min', fallback='37')))
+        self.exp_spin_box.spin_box.setMinimum(int(self.get_config().get('camera', 'exposition_min', fallback='-8')))
         self.exp_spin_box.spin_box.setMaximum(
-            int(self.get_config().get('camera', 'exposition_max', fallback='300000')))
-        self.exp_spin_box.spin_box.setValue(int(self.get_config().get('camera', 'exposition', fallback='50000')))
+            int(self.get_config().get('camera', 'exposition_max', fallback='8')))
+        self.exp_spin_box.spin_box.setValue(int(self.get_config().get('camera', 'exposition', fallback='0')))
 
         self.iso_spin_box = CustomSpinBox(
             self.ui.iso_spinBox,
@@ -630,7 +630,7 @@ class SettingsWindow(BaseWindow):
 
     def set_controls_and_show_photo(self, camera_num):
         self.get_config().set('camera', 'exposition', str(self.ui.exp_spinBox.value()))
-        self.get_config().set('camera', 'iso', str(self.ui.iso_spinBox.value()))
+        # self.get_config().set('camera', 'iso', str(self.ui.iso_spinBox.value()))
         photo_path = self.get_photo_manager().set_controls_and_take_photo(
             Project('test_project', './'),
             Well(0, 'test_well'),
