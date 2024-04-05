@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>300</height>
+    <height>308</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -21,7 +21,7 @@
        <item>
         <widget class="QLabel" name="label_2">
          <property name="text">
-          <string>Проект</string>
+          <string>Проект:</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -31,7 +31,7 @@
        <item>
         <widget class="QLabel" name="label_3">
          <property name="text">
-          <string>Скважина</string>
+          <string>Скважина:</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -43,10 +43,18 @@
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_5">
        <item>
-        <widget class="QLineEdit" name="project_name_input"/>
+        <widget class="QLabel" name="project_name_label">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
        </item>
        <item>
-        <widget class="QLineEdit" name="well_name_input"/>
+        <widget class="QLabel" name="well_name_label">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
        </item>
       </layout>
      </item>
@@ -99,8 +107,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>386</width>
-        <height>180</height>
+        <width>374</width>
+        <height>132</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2">

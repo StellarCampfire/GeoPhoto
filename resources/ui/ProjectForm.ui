@@ -21,7 +21,7 @@
        <item>
         <widget class="QLabel" name="label_2">
          <property name="text">
-          <string>Проект</string>
+          <string>Проект:</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -77,7 +77,7 @@
       </font>
      </property>
      <property name="text">
-      <string>Список скважин</string>
+      <string>Список скважин:</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>

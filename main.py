@@ -383,6 +383,7 @@ class IntervalWindow(BaseWindow):
 
         self.ui.project_name_label.setText(self.project.name)
         self.ui.well_name_label.setText(self.well.name)
+        self.ui.interval_name_label.setText(self.interval.get_full_name())
 
         self.ui.back_button.clicked.connect(lambda: self.switch_interface(
             WellWindow,
@@ -464,8 +465,8 @@ class WellWindow(BaseWindow):
         self.project = project
         self.well = well
 
-        self.ui.project_name_input.setText(project.name)
-        self.ui.well_name_input.setText(self.well.name)
+        self.ui.project_name_label.setText(project.name)
+        self.ui.well_name_label.setText(self.well.name)
 
         self.ui.new_interval_button.clicked.connect(lambda: self.switch_interface(
             NewIntervalWindow,
