@@ -30,7 +30,7 @@ class NewWellWindow(BaseWindow):
         if well_name:
             new_well_id = self.get_database_manager().add_well(well_name)
             new_well = self.get_database_manager().get_well(new_well_id)
-            self.switch_interface(self.goto_well(new_well))
+            self.goto_well(new_well)
         else:
             self.ui.error_message_label.setText("Название скважины не может быть пустое.")
 
