@@ -127,12 +127,12 @@ class App(QMainWindow):
 
     def init_photo_manager(self):
         """Initializes the photo manager based on camera availability."""
-        logging.info("Photo manager emulator starting...")
+        logging.info("Photo manager starting...")
         try:
             from src.utils.photo_manager.photo_manager import PhotoManager
             if PhotoManager.check_cameras():
                 self.photo_manager = PhotoManager()
-                logging.info("Photo manager emulator started.")
+                logging.info("Photo manager started.")
             else:
                 logging.error("Photo_manager: No cameras found. Aborted.")
         except ImportError:

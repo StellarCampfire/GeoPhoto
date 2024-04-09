@@ -55,5 +55,6 @@ class PhotoManager(BasePhotoManager):
         camera_info = Picamera2.global_camera_info()
         if len(camera_info) < 2:
             logging.error("Insufficient cameras available; at least 2 are required.")
-            raise RuntimeError("Insufficient cameras available.")
+            return False
         logging.info("Camera availability confirmed.")
+        return True
