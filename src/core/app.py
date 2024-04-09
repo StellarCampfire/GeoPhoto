@@ -3,6 +3,7 @@ import logging
 import os
 
 from PyQt5.QtWidgets import QApplication
+from PyQt5.QtWidgets import QMainWindow
 from src.core.window_types import WindowType
 from src.models.project import Project
 
@@ -21,10 +22,10 @@ from src.windows.well_window import WellWindow
 from src.windows.settings_window import SettingsWindow
 
 
-class App(QApplication):
+class App(QMainWindow):
     def __init__(self, sys_argv, config_manager, emulate=False, resolution=None):
         logging.debug("Initializing the application.")
-        super().__init__(sys_argv)
+        super().__init__()
         logging.debug("SUPER APPLICATION STARTED.")
         self.current_window = None
         self.resolution = resolution
