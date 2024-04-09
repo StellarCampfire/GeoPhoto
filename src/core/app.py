@@ -33,7 +33,7 @@ class App(QMainWindow):
         self.db_manager = None
         self.photo_manager = None
 
-        logging.debug('Trying to start photo manager...')
+        logging.debug(f'Trying to start photo manager... emulate: {str(emulate)}')
         if emulate:
             self.init_photo_manager_emulator()
         else:
