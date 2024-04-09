@@ -18,8 +18,8 @@ class PhotoManager(BasePhotoManager):
         try:
             # Create and configure cameras
             self.cameras = [Picamera2(i) for i in range(2)]
-            config = self.cameras[0].create_still_configuration()
             for camera in self.cameras:
+                config = camera.create_still_configuration()
                 camera.configure(config)
             logging.info("Cameras configured successfully.")
         except Exception as e:
