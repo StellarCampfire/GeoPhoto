@@ -1,5 +1,6 @@
 import os
 import logging
+import time
 
 from src.utils.photo_manager.base_photo_manager import BasePhotoManager
 
@@ -21,7 +22,7 @@ class PhotoManager(BasePhotoManager):
         try:
             self.cameras.append(Picamera2(0))
             self.cameras.append(Picamera2(1))
-            config = self.cameras[0].create_still_configuration(buffer_count=2)
+            config = self.cameras[0].create_still_configuration()
             for camera in self.cameras:
                 camera.configure(config)
             logging.info("Cameras configured successfully.")
@@ -31,12 +32,14 @@ class PhotoManager(BasePhotoManager):
 
     def take_photo_with_camera(self, camera, project, well, camera_num):
         """General method to capture a photo using a specified camera."""
+        logging.info(f'Trying to take photo with camera {str(camera_num)}')
         photo_name = self.generate_unique_photo_name(project, well, camera_num)
         photo_path = os.path.join(self.temp_photo_path, photo_name)
         try:
             camera.start()
             camera.capture_file(photo_path)
             camera.stop()
+            time.sleep(2)
             logging.info("Photo captured and saved at %s", photo_path)
             return photo_path
         except Exception as e:
