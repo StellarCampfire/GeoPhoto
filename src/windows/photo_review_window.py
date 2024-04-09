@@ -3,7 +3,7 @@ from PyQt5.QtGui import QPixmap
 
 from src.windows.base_window import BaseWindow
 from src.core.window_types import WindowType
-
+from src.threads.taking_photo_thread import PhotoTakingThread
 from resources.py.PhotoReviewForm import Ui_PhotoReviewForm
 
 
@@ -15,8 +15,8 @@ class PhotoReviewWindow(BaseWindow):
         self.well = well
         self.interval_settings = interval_settings
 
-        self.photos = self.get_photo_manager().take_photos(self.project, self.well)
-        self.current_photo_index = 0
+        self.photos = None
+        self.current_photo_index = None
 
         self.ui = Ui_PhotoReviewForm()
         self.ui.setupUi(self.central_widget)
@@ -24,12 +24,29 @@ class PhotoReviewWindow(BaseWindow):
         self.ui.yes_pushButton.clicked.connect(self.on_yes_clicked)
         self.ui.no_pushButton.clicked.connect(self.on_no_clicked)
 
+        # Инициализация потока и подключение сигналов
+        self.photo_thread = PhotoTakingThread(self.get_photo_manager(), project, well)
+        self.photo_thread.photos_ready.connect(self.update_photos)
+        self.photo_thread.start()  # Запуск потока
+
+        # Показать сообщение о загрузке
+        self.ui.photo_label.setText("Загрузка фотографий...")
+
         # Focus
         self.install_focusable_elements(
             self.ui.yes_pushButton,
             self.ui.no_pushButton)
 
         self.start_focus = self.ui.yes_pushButton
+
+
+    def update_photos(self, photos):
+        self.photos = photos
+        self.current_photo_index = 0
+        if self.photos:
+            self.load_image()
+        else:
+            self.ui.photo_label.setText("Фотографии не найдены.")
 
     def on_yes_clicked(self):
         if self.current_photo_index < len(self.photos) - 1:
@@ -54,14 +71,15 @@ class PhotoReviewWindow(BaseWindow):
         self.goto_new_interval()
 
     def load_image(self):
-        pixmap = QPixmap(self.photos[self.current_photo_index])
-        scaled_pixmap = pixmap.scaled(self.ui.photo_label.size(), Qt.KeepAspectRatio,
-                                      Qt.SmoothTransformation)
-        self.ui.photo_label.setPixmap(scaled_pixmap)
+        if self.photos:
+            pixmap = QPixmap(self.photos[self.current_photo_index])
+            scaled_pixmap = pixmap.scaled(self.ui.photo_label.size(), Qt.KeepAspectRatio,
+                                          Qt.SmoothTransformation)
+            self.ui.photo_label.setPixmap(scaled_pixmap)
 
-    def showEvent(self, event):
-        super().showEvent(event)
-        self.load_image()
+    # def showEvent(self, event):
+    #     super().showEvent(event)
+    #     self.load_image()
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
