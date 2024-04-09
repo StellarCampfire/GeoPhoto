@@ -28,14 +28,19 @@ class App(QApplication):
         self.current_window = None
         self.resolution = resolution
         self.config_manager = config_manager
-        self.switch_interface(WindowType.START_WINDOW)
         self.db_manager = None
         self.photo_manager = None
 
+        logging.debug('Trying to start photo manager...')
         if emulate:
             self.init_photo_manager_emulator()
         else:
             self.init_photo_manager()
+
+        logging.debug('Switching start window...')
+
+        self.switch_interface(WindowType.START_WINDOW)
+        logging.debug('App started.')
 
     def switch_interface(self, window_type, *args, **kwargs):
         if self.current_window is not None:
