@@ -25,6 +25,7 @@ class App(QApplication):
     def __init__(self, sys_argv, config_manager, emulate=False, resolution=None):
         logging.debug("Initializing the application.")
         super().__init__(sys_argv)
+        logging.debug("SUPER APPLICATION STARTED.")
         self.current_window = None
         self.resolution = resolution
         self.config_manager = config_manager
