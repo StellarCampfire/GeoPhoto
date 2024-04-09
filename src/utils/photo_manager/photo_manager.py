@@ -22,7 +22,7 @@ class PhotoManager(BasePhotoManager):
         try:
             self.cameras.append(Picamera2(0))
             self.cameras.append(Picamera2(1))
-            config = self.cameras[0].create_still_configuration()
+            config = self.cameras[0].create_still_configuration(buffer_count=2)
             for camera in self.cameras:
                 camera.configure(config)
             logging.info("Cameras configured successfully.")
