@@ -39,7 +39,6 @@ class PhotoManager(BasePhotoManager):
             camera.start()
             camera.capture_file(photo_path)
             camera.stop()
-            time.sleep(2)
             logging.info("Photo captured and saved at %s", photo_path)
             return photo_path
         except Exception as e:
@@ -49,8 +48,13 @@ class PhotoManager(BasePhotoManager):
     def take_photos(self, project, well):
         """Captures photos using both configured cameras."""
         self.clear_temp_storage()
-        return [self.take_photo_with_camera(camera, project, well, index)
-                for index, camera in enumerate(self.cameras, start=1)]
+        result = []
+        for index, camera in enumerate(self.cameras, start=1):
+            logging.debug(f'take_photos: trying to take photo with camera {index}')
+            photo_path = self.take_photo_with_camera(camera, project, well, index)
+            result.append(photo_path)
+            time.sleep(2)
+            logging.debug(f'take_photos: finished to take photo with camera {index}')
 
     @staticmethod
     def check_cameras():
