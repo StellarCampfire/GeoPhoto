@@ -1,8 +1,8 @@
-from PyQt5.QtWidgets import (QMainWindow, QDoubleSpinBox)
 from PyQt5.QtCore import Qt
-
 from PyQt5.QtCore import QEvent
 from PyQt5.QtWidgets import QWidget
+from PyQt5.QtWidgets import QMainWindow
+from PyQt5.QtWidgets import QDoubleSpinBox
 
 
 class BaseWindow(QMainWindow):
@@ -12,8 +12,8 @@ class BaseWindow(QMainWindow):
         self.start_focus = None
         self.focusable_elements = []
 
-        self.centralwidget = QWidget()
-        self.setCentralWidget(self.centralwidget)
+        self.central_widget = QWidget()
+        self.setCentralWidget(self.central_widget)
 
     def install_focus_event_filters(self):
         for element in self.focusable_elements:
@@ -45,4 +45,22 @@ class BaseWindow(QMainWindow):
             elif isinstance(source, QDoubleSpinBox) and (event.key() in [Qt.Key_Left, Qt.Key_Right]):
                 pass
 
+        # Для всех остальных событий пропускаем обработку через базовый класс
         return super().eventFilter(source, event)
+
+    def showEvent(self, event):
+        super().showEvent(event)
+        if self.start_focus is not None:
+            self.start_focus.setFocus()
+
+    def switch_interface(self, interface_class, *args, **kwargs):
+        self.app.switch_interface(interface_class, *args, **kwargs)
+
+    def get_database_manager(self):
+        return self.app.db_manager
+
+    def get_photo_manager(self):
+        return self.app.photo_manager
+
+    def get_config(self):
+        return self.app.config_manager

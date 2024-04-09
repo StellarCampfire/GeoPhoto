@@ -1,10 +1,10 @@
-from src.views.BaseWindow import BaseWindow
-from src.views.IntervalWindow import IntervalWindow
-from src.views.NewIntervalWindow import NewIntervalWindow
-from resources.py.PhotoReviewForm import Ui_PhotoReviewForm
-
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap
+
+from src.windows.base_window import BaseWindow
+from src.core.window_types import WindowType
+
+from resources.py.PhotoReviewForm import Ui_PhotoReviewForm
 
 
 class PhotoReviewWindow(BaseWindow):
@@ -15,48 +15,43 @@ class PhotoReviewWindow(BaseWindow):
         self.well = well
         self.interval_settings = interval_settings
 
-        self.photos = self.get_photo_manager().take_photos(self.project, self.well, self.interval_settings)
+        self.photos = self.get_photo_manager().take_photos(self.project, self.well)
         self.current_photo_index = 0
 
         self.ui = Ui_PhotoReviewForm()
-        self.ui.setupUi(self.centralwidget)
+        self.ui.setupUi(self.central_widget)
 
         self.ui.yes_pushButton.clicked.connect(self.on_yes_clicked)
         self.ui.no_pushButton.clicked.connect(self.on_no_clicked)
 
+        # Focus
+        self.install_focusable_elements(
+            self.ui.yes_pushButton,
+            self.ui.no_pushButton)
 
+        self.start_focus = self.ui.yes_pushButton
 
     def on_yes_clicked(self):
         if self.current_photo_index < len(self.photos) - 1:
             self.current_photo_index += 1
             self.load_image()
         else:
-            permanent_photos = self.get_photo_manager().save_photos_to_permanent_storage(
+            new_interval_id = self.get_database_manager().add_interval(self.well.id, self.interval_settings)
+            new_interval = self.get_database_manager().get_interval(new_interval_id)
+
+            permanent_photo_paths = self.get_photo_manager().save_photos_to_permanent_storage(
                 self.project,
                 self.well,
-                self.interval_settings)
-            result = self.get_database_manager().create_interval_with_photos(
-                self.well.id,
-                self.interval_settings,
-                permanent_photos)
-            if result[0]:
-                new_interval = self.get_database_manager().get_interval(result[1])
-                self.switch_interface(
-                    IntervalWindow,
-                    self.project,
-                    self.well,
-                    new_interval)
-            else:
-                # TODO error msg
-                self.on_no_clicked()
+                new_interval)
+
+            for path in permanent_photo_paths:
+                self.get_database_manager().add_photo(path, new_interval.id)
+
+            self.goto_interval(new_interval)
 
     def on_no_clicked(self):
         self.get_photo_manager().clear_temp_storage()
-        self.switch_interface(
-            NewIntervalWindow,
-            self.project,
-            self.well,
-            self.interval_settings)
+        self.goto_new_interval()
 
     def load_image(self):
         pixmap = QPixmap(self.photos[self.current_photo_index])
@@ -72,3 +67,9 @@ class PhotoReviewWindow(BaseWindow):
         super().resizeEvent(event)
         if hasattr(self, 'ui'):
             self.load_image()
+
+    def goto_interval(self, interval):
+        self.switch_interface(WindowType.INTERVAL_WINDOW, self.project, self.well, interval)
+
+    def goto_new_interval(self):
+        self.switch_interface(WindowType.NEW_INTERVAL_WINDOW, self.project, self.well, self.interval_settings)

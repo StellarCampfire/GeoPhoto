@@ -1,9 +1,10 @@
-from src.views.BaseWindow import BaseWindow
-from src.views.IntervalWindow import IntervalWindow
-from resources.py.PhotoViewForm import Ui_PhotoViewForm
-
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap
+
+from src.windows.base_window import BaseWindow
+from src.core.window_types import WindowType
+
+from resources.py.PhotoViewForm import Ui_PhotoViewForm
 
 
 class PhotoViewWindow(BaseWindow):
@@ -15,10 +16,13 @@ class PhotoViewWindow(BaseWindow):
         self.photo = photo
 
         self.ui = Ui_PhotoViewForm()
-        self.ui.setupUi(self.centralwidget)
+        self.ui.setupUi(self.central_widget)
 
-        self.ui.back_pushButton.clicked.connect(
-            lambda: self.switch_interface(IntervalWindow, self.project, self.well, self.interval))
+        self.ui.back_pushButton.clicked.connect(self.goto_interval)
+
+        # Focus
+        self.install_focusable_elements(
+            self.ui.back_pushButton)
 
     def load_image(self):
         pixmap = QPixmap(self.photo.path)
@@ -34,3 +38,6 @@ class PhotoViewWindow(BaseWindow):
         super().resizeEvent(event)
         if hasattr(self, 'ui'):
             self.load_image()
+
+    def goto_interval(self):
+        self.switch_interface(WindowType.INTERVAL_WINDOW, self.project, self.well, self.interval)
