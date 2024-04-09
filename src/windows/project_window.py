@@ -51,7 +51,7 @@ class ProjectWindow(BaseWindow):
         self.switch_interface(WindowType.START_WINDOW)
 
     def goto_new_well(self):
-        self.switch_interface(WindowType.NEW_WELL_WINDOW)
+        self.switch_interface(WindowType.NEW_WELL_WINDOW, self.project)
 
     def goto_well(self, well):
         self.switch_interface(WindowType.WELL_WINDOW, self.project, well)
