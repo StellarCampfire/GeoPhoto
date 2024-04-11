@@ -5,7 +5,7 @@ from PyQt5.QtCore import QThread, pyqtSignal
 from picamera2 import Picamera2
 
 class CameraThread(QThread):
-    photoTaken = pyqtSignal(str)
+    photoTaken = pyqtSignal(str, name='photoTaken')
 
     def __init__(self, camera, photo_path):
         super().__init__()
@@ -30,6 +30,7 @@ class CameraApp(QMainWindow):
         self.photoLabel.setFixedSize(640, 480)
         self.setup_buttons()
         self.setup_cameras()
+        self.camera_threads = []
 
     def setup_buttons(self):
         self.takePhotoCamera1Button = QPushButton("Take Photo Camera 1", self)
@@ -60,7 +61,9 @@ class CameraApp(QMainWindow):
         photo_path = f"photo_{camera_index + 1}.jpg"
         thread = CameraThread(self.cameras[camera_index], photo_path)
         thread.photoTaken.connect(self.display_photo)
+        thread.finished.connect(thread.deleteLater)  # Ensure thread is cleaned up properly
         thread.start()
+        self.camera_threads.append(thread)
 
     def display_photo(self, path):
         pixmap = QPixmap(path)
