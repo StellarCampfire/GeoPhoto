@@ -1,25 +1,29 @@
-import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QLabel, QVBoxLayout, QWidget
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import QThread, pyqtSignal
 from picamera2 import Picamera2
+import sys
 
 class CameraThread(QThread):
     photoTaken = pyqtSignal(str, name='photoTaken')
 
-    def __init__(self, camera, photo_path):
+    def __init__(self, camera_index, photo_path):
         super().__init__()
-        self.camera = camera
+        self.camera_index = camera_index
         self.photo_path = photo_path
 
     def run(self):
         try:
-            self.camera.start()
-            self.camera.capture_file(self.photo_path)
-            self.camera.stop()
+            camera = Picamera2(self.camera_index)
+            config = camera.create_still_configuration()
+            camera.configure(config)
+            camera.start()
+            camera.capture_file(self.photo_path)
+            camera.stop()
+            camera.close()  # Explicitly close the camera
             self.photoTaken.emit(self.photo_path)
         except Exception as e:
-            print(f"Error capturing photo: {e}")
+            print(f"Error capturing photo with camera {self.camera_index}: {e}")
 
 class CameraApp(QMainWindow):
     def __init__(self):
@@ -29,7 +33,6 @@ class CameraApp(QMainWindow):
         self.photoLabel = QLabel(self)
         self.photoLabel.setFixedSize(640, 480)
         self.setup_buttons()
-        self.setup_cameras()
         self.camera_threads = []
 
     def setup_buttons(self):
@@ -48,27 +51,17 @@ class CameraApp(QMainWindow):
         self.takePhotoCamera2Button.clicked.connect(lambda: self.take_photo(1))
         self.exitButton.clicked.connect(self.close)
 
-    def setup_cameras(self):
-        try:
-            self.cameras = [Picamera2(i) for i in range(2)]
-            config = self.cameras[0].create_still_configuration()
-            for camera in self.cameras:
-                camera.configure(config)
-        except Exception as e:
-            print(f"Error initializing cameras: {e}")
-
     def take_photo(self, camera_index):
         photo_path = f"photo_{camera_index + 1}.jpg"
-        thread = CameraThread(self.cameras[camera_index], photo_path)
+        thread = CameraThread(camera_index, photo_path)
         thread.photoTaken.connect(self.display_photo)
         thread.finished.connect(thread.deleteLater)  # Ensure thread is cleaned up properly
         thread.start()
-        self.camera_threads.append(thread)
+        self.camera_threads.append(thread)  # Keep reference to avoid garbage collection
 
     def display_photo(self, path):
-        # pixmap = QPixmap(path)
-        self.photoLabel.setText("Я зделал фотку!")
-        # self.photoLabel.setPixmap(pixmap.scaled(self.photoLabel.size(), aspectRatioMode=1))
+        pixmap = QPixmap(path)
+        self.photoLabel.setPixmap(pixmap.scaled(self.photoLabel.size(), Qt.KeepAspectRatio))
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
