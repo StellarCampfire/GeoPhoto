@@ -17,6 +17,7 @@ class CameraApp(QMainWindow):
 
         self.takePhotoCamera1Button = QPushButton("Take Photo Camera 1", self)
         self.takePhotoCamera2Button = QPushButton("Take Photo Camera 2", self)
+        self.takePhotoCameraBothButton = QPushButton("Take Photo Camera Both", self)
         self.exitButton = QPushButton("Exit", self)
 
         # Расположение виджетов
@@ -44,6 +45,7 @@ class CameraApp(QMainWindow):
         # Подключение событий
         self.takePhotoCamera1Button.clicked.connect(lambda: self.take_photo(self.camera1))
         self.takePhotoCamera2Button.clicked.connect(lambda: self.take_photo(self.camera2))
+        self.takePhotoCameraBothButton.clicked.connect(lambda: self.take_photo(self.camera2))
         self.exitButton.clicked.connect(self.close)
 
     def take_photo(self, camera):
@@ -52,6 +54,16 @@ class CameraApp(QMainWindow):
         camera.capture_file(photo_path)
         camera.stop()
         self.display_photo(photo_path)
+
+    def takeBothPhoto(self):
+        photo_path_1 = "photo_both_1.jpg"
+        photo_path_2 = "photo_both_2.jpg"
+        self.camera1.start()
+        self.camera1.capture_file(photo_path_1)
+        self.camera1.stop()
+        self.camera2.start()
+        self.camera2.capture_file(photo_path_2)
+        self.camera2.stop()
 
     def display_photo(self, path):
         pixmap = QPixmap(path)

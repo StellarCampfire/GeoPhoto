@@ -7,6 +7,8 @@ class CameraApp(QMainWindow):
     def __init__(self, camera_num):
         super().__init__()
 
+        self.camera_num = camera_num
+
         self.setWindowTitle("Camera Control App")
         self.setGeometry(100, 100, 800, 600)
 
@@ -14,13 +16,11 @@ class CameraApp(QMainWindow):
         self.photoLabel.setFixedSize(640, 480)
 
         self.takePhotoCamera1Button = QPushButton("Take Photo Camera 1", self)
-        self.takePhotoCamera2Button = QPushButton("Take Photo Camera 2", self)
         self.exitButton = QPushButton("Exit", self)
 
         layout = QVBoxLayout()
         layout.addWidget(self.photoLabel)
         layout.addWidget(self.takePhotoCamera1Button)
-        layout.addWidget(self.takePhotoCamera2Button)
         layout.addWidget(self.exitButton)
 
         container = QWidget()
@@ -29,7 +29,7 @@ class CameraApp(QMainWindow):
 
         # Инициализация камеры
         try:
-            self.camera = Picamera2(camera_num)
+            self.camera = Picamera2(self.camera_num)
             config = self.camera.create_still_configuration()
             self.camera.configure(config)
             print("Camera initialized successfully.")
@@ -37,13 +37,12 @@ class CameraApp(QMainWindow):
             print(f"Error initializing camera: {e}")
 
         # Подключение обработчиков кнопок
-        self.takePhotoCamera1Button.clicked.connect(lambda: self.take_photo(0))
-        self.takePhotoCamera2Button.clicked.connect(lambda: self.take_photo(1))
+        self.takePhotoCamera1Button.clicked.connect(self.take_photo)
         self.exitButton.clicked.connect(self.close)
 
-    def take_photo(self, camera_num):
-        print(f"Taking photo with camera {camera_num}...")
-        photo_path = f"photo_{camera_num}.jpg"
+    def take_photo(self):
+        print(f"Taking photo with camera {self.camera_num}...")
+        photo_path = f"photo_{self.camera_num}.jpg"
         try:
             self.camera.start()
             self.camera.capture_file(photo_path)
@@ -51,7 +50,7 @@ class CameraApp(QMainWindow):
             print(f"Photo taken and saved at {photo_path}")
             self.display_photo(photo_path)
         except Exception as e:
-            print(f"Failed to take photo with camera {camera_num}: {e}")
+            print(f"Failed to take photo with camera {self.camera_num}: {e}")
 
     def display_photo(self, path):
         pixmap = QPixmap(path)
