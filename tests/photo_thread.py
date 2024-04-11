@@ -66,8 +66,9 @@ class CameraApp(QMainWindow):
         self.camera_threads.append(thread)
 
     def display_photo(self, path):
-        pixmap = QPixmap(path)
-        self.photoLabel.setPixmap(pixmap.scaled(self.photoLabel.size(), aspectRatioMode=1))
+        # pixmap = QPixmap(path)
+        self.photoLabel.setText("Я зделал фотку!")
+        # self.photoLabel.setPixmap(pixmap.scaled(self.photoLabel.size(), aspectRatioMode=1))
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
