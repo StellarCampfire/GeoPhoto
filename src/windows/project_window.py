@@ -2,6 +2,7 @@ from functools import partial
 
 from PyQt5.QtWidgets import QSpacerItem, QSizePolicy
 from PyQt5.QtWidgets import QPushButton
+from PyQt5 import QtCore, QtWidgets
 
 from src.windows.base_window import BaseWindow
 from src.core.window_types import WindowType
@@ -14,6 +15,7 @@ class ProjectWindow(BaseWindow):
         super().__init__(app_instance, parent)
         self.ui = Ui_ProjectForm()
         self.ui.setupUi(self.central_widget)
+        self.set_scroll_area(self.ui.scrollArea)
 
         self.project = project
 

@@ -3,6 +3,7 @@ from PyQt5.QtCore import QEvent
 from PyQt5.QtWidgets import QWidget
 from PyQt5.QtWidgets import QMainWindow
 from PyQt5.QtWidgets import QDoubleSpinBox
+from PyQt5.QtWidgets import QScrollArea
 
 
 class BaseWindow(QMainWindow):
@@ -11,6 +12,7 @@ class BaseWindow(QMainWindow):
         self.app = app_instance
         self.start_focus = None
         self.focusable_elements = []
+        self.scroll_area = None
 
         self.central_widget = QWidget()
         self.setCentralWidget(self.central_widget)
@@ -42,11 +44,21 @@ class BaseWindow(QMainWindow):
                 else:
                     self.focusable_elements[0].setFocus()
                 return True
-            elif isinstance(source, QDoubleSpinBox) and (event.key() in [Qt.Key_Left, Qt.Key_Right]):
-                pass
+            elif event.key() in [Qt.Key_Left, Qt.Key_Right]:
+                if isinstance(source, QDoubleSpinBox):
+                    pass
+                else:
+                    return True
+
+        if event.type() == QEvent.FocusIn and self.scroll_area:
+            self.scroll_area.ensureWidgetVisible(source)
 
         # Для всех остальных событий пропускаем обработку через базовый класс
         return super().eventFilter(source, event)
+
+    def set_scroll_area(self, scroll_area):
+        if isinstance(scroll_area, QScrollArea):
+            self.scroll_area = scroll_area
 
     def showEvent(self, event):
         super().showEvent(event)

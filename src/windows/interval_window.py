@@ -15,6 +15,7 @@ class IntervalWindow(BaseWindow):
 
         self.ui = Ui_IntervalForm()
         self.ui.setupUi(self.central_widget)
+        self.set_scroll_area(self.ui.scrollArea)
 
         self.ui.project_name_label.setText(self.project.name)
         self.ui.well_name_label.setText(self.well.name)

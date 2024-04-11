@@ -2,8 +2,7 @@ import json
 import logging
 import os
 
-from PyQt5.QtWidgets import QApplication
-from PyQt5.QtWidgets import QMainWindow
+from PyQt5.QtWidgets import QMainWindow, QStackedWidget
 from src.core.window_types import WindowType
 from src.models.project import Project
 
@@ -26,12 +25,15 @@ class App(QMainWindow):
     def __init__(self, sys_argv, config_manager, emulate=False, resolution=None):
         logging.debug("Initializing the application.")
         super().__init__()
-        logging.debug("SUPER APPLICATION STARTED.")
+
         self.current_window = None
         self.resolution = resolution
         self.config_manager = config_manager
         self.db_manager = None
         self.photo_manager = None
+
+        self.stacked_widget = QStackedWidget()
+        self.setCentralWidget(self.stacked_widget)
 
         logging.debug(f'Trying to start photo manager... emulate: {str(emulate)}')
         if emulate:
@@ -44,20 +46,24 @@ class App(QMainWindow):
         self.switch_interface(WindowType.START_WINDOW)
         logging.debug('App started.')
 
-    def switch_interface(self, window_type, *args, **kwargs):
-        if self.current_window is not None:
-            self.current_window.close()
-        self.current_window = self.create_window(window_type, *args, **kwargs)
-        self.adjust_window_display()
-        logging.info(f"Window {window_type} is now visible.")
-
-    def adjust_window_display(self):
         if self.resolution:
             width, height = map(int, self.resolution.split('x'))
-            self.current_window.setGeometry(100, 100, width, height)
+            self.setGeometry(100, 100, width, height)
         else:
-            self.current_window.showFullScreen()
-        self.current_window.show()
+            self.showFullScreen()
+        self.show()
+
+    def switch_interface(self, window_type, *args, **kwargs):
+        widget = self.create_window(window_type, *args, **kwargs)
+        self.clean_stacked_widget()
+        self.stacked_widget.addWidget(widget)
+        self.stacked_widget.setCurrentWidget(widget)
+
+    def clean_stacked_widget(self):
+        while self.stacked_widget.count() > 0:
+            widget_to_remove = self.stacked_widget.widget(0)
+            self.stacked_widget.removeWidget(widget_to_remove)
+            widget_to_remove.deleteLater()
 
     def create_window(self, window_type, *args, **kwargs):
         logging.debug(f"Creating a new window of type {window_type}.")
@@ -143,5 +149,3 @@ class App(QMainWindow):
         logging.info("Photo manager emulator starting...")
         self.photo_manager = PhotoManagerEmulator()
         logging.info("Photo manager emulator started.")
-
-

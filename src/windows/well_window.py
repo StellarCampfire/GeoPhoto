@@ -15,6 +15,7 @@ class WellWindow(BaseWindow):
         super().__init__(app_instance, parent)
         self.ui = Ui_WellForm()
         self.ui.setupUi(self.central_widget)
+        self.set_scroll_area(self.ui.scrollArea)
 
         self.project = project
         self.well = well
