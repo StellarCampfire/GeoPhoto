@@ -10,8 +10,8 @@ class PhotoManager(BasePhotoManager):
     def __init__(self, temp_storage="temp/photos", permanent_storage="permanent_storage"):
         super().__init__(temp_storage, permanent_storage)
         self.cameras = []
-        if self.check_cameras():
-            self.setup_cameras()
+        # if self.check_cameras():
+            # self.setup_cameras()
 
     def setup_cameras(self):
         """Initializes cameras with configurations."""
@@ -40,21 +40,41 @@ class PhotoManager(BasePhotoManager):
             logging.error(f"Failed to capture photo with camera {camera_num}: {e}")
             return None
 
+    def take_photo_with_camera_and_free_mem(self, camera_index, project, well):
+        photo_name = self.generate_unique_photo_name(project, well, camera_index)
+        photo_path = os.path.join(self.temp_photo_path, photo_name)
+
+        camera = Picamera2(camera_index)
+        config = camera.create_still_configuration()
+        camera.configure(config)
+
+        camera.start()
+        camera.capture_file(photo_path)
+        camera.stop()
+
+        return photo_path
+
+
     def take_photos(self, project, well):
         """Initiates photo capture on all cameras in separate threads."""
         threads = []
         results = [None] * len(self.cameras)
 
-        def capture(index, camera):
-            results[index] = self.take_photo_with_camera(camera, project, well, index + 1)
+        # def capture(index, camera):
+        #     results[index] = self.take_photo_with_camera(camera, project, well, index + 1)
+        photo_paths = []
+        photo_paths.append(self.take_photo_with_camera_and_free_mem(0, project, well))
+        photo_paths.append(self.take_photo_with_camera_and_free_mem(1, project, well))
 
-        for i, camera in enumerate(self.cameras):
-            thread = threading.Thread(target=capture, args=(i, camera))
-            threads.append(thread)
-            thread.start()
 
-        for thread in threads:
-            thread.join()  # Wait for all threads to complete
+
+        # for i, camera in enumerate(self.cameras):
+        #     thread = threading.Thread(target=capture, args=(i, camera))
+        #     threads.append(thread)
+        #     thread.start()
+        #
+        # for thread in threads:
+        #     thread.join()  # Wait for all threads to complete
 
         return results
 

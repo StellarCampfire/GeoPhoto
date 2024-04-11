@@ -3,7 +3,6 @@ from PyQt5.QtGui import QPixmap
 
 from src.windows.base_window import BaseWindow
 from src.core.window_types import WindowType
-from src.threads.taking_photo_thread import PhotoTakingThread
 from resources.py.PhotoReviewForm import Ui_PhotoReviewForm
 
 
@@ -24,10 +23,11 @@ class PhotoReviewWindow(BaseWindow):
         self.ui.yes_pushButton.clicked.connect(self.on_yes_clicked)
         self.ui.no_pushButton.clicked.connect(self.on_no_clicked)
 
-        # Инициализация потока и подключение сигналов
-        self.photo_thread = PhotoTakingThread(self.get_photo_manager(), project, well)
-        self.photo_thread.photos_ready.connect(self.update_photos)
-        self.photo_thread.start()  # Запуск потока
+        self.photos = self.get_photo_manager().take_photos(self.project, self.well)
+        # # Инициализация потока и подключение сигналов
+        # self.photo_thread = PhotoTakingThread(self.get_photo_manager(), project, well)
+        # self.photo_thread.photos_ready.connect(self.update_photos)
+        # self.photo_thread.start()  # Запуск потока
 
         # Показать сообщение о загрузке
         self.ui.photo_label.setText("Загрузка фотографий...")
