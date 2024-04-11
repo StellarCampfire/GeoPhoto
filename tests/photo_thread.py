@@ -1,8 +1,8 @@
+import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QLabel, QVBoxLayout, QWidget
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import QThread, pyqtSignal
 from picamera2 import Picamera2
-import sys
 
 class CameraThread(QThread):
     photoTaken = pyqtSignal(str, name='photoTaken')
@@ -57,11 +57,12 @@ class CameraApp(QMainWindow):
         thread.photoTaken.connect(self.display_photo)
         thread.finished.connect(thread.deleteLater)  # Ensure thread is cleaned up properly
         thread.start()
-        self.camera_threads.append(thread)  # Keep reference to avoid garbage collection
+        self.camera_threads.append(thread)
 
     def display_photo(self, path):
-        pixmap = QPixmap(path)
-        self.photoLabel.setPixmap(pixmap.scaled(self.photoLabel.size(), Qt.KeepAspectRatio))
+        # pixmap = QPixmap(path)
+        self.photoLabel.setText("Я зделал фотку!")
+        # self.photoLabel.setPixmap(pixmap.scaled(self.photoLabel.size(), aspectRatioMode=1))
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
