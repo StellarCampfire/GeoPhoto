@@ -19,7 +19,7 @@ class CameraContextManager:
 
     def __enter__(self):
         self.camera = Picamera2(self.camera_index)
-        config = self.camera.create_still_configuration()
+        config = self.camera.create_still_configuration(buffer_count=1)
         self.camera.configure(config)
         logging.debug(f'CameraContextManager {self.camera_index}: starting camera...')
         self.camera.start()
