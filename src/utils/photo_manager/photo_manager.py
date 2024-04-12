@@ -2,6 +2,8 @@ import os
 import logging
 import threading
 import gc
+import time
+
 from PyQt5.QtCore import QThread, pyqtSignal
 
 from src.utils.photo_manager.base_photo_manager import BasePhotoManager
@@ -87,6 +89,9 @@ class PhotoManager(BasePhotoManager):
             photo_result = self.take_photo_with_camera_and_free_mem(camera_index, photo_path)
             logging.debug(f'take_photos: finish take_photo_camera_and_free_mem for camera {camera_index}')
             result.append(photo_result)
+            logging.debug(f'take_photos {camera_index}: sleeping...')
+            time.sleep(4)
+            logging.debug(f'take_photos {camera_index}: wake up...')
 
         return result
 
