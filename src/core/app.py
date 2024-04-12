@@ -18,7 +18,8 @@ from src.windows.photo_review_window import PhotoReviewWindow
 from src.windows.photo_view_window import PhotoViewWindow
 from src.windows.project_window import ProjectWindow
 from src.windows.well_window import WellWindow
-from src.windows.settings_window import SettingsWindow
+from src.windows.delete_well_window import DeleteWellWindow
+from src.windows.delete_interval_window import DeleteIntervalWindow
 
 
 class App(QMainWindow):
@@ -85,8 +86,10 @@ class App(QMainWindow):
             return PhotoReviewWindow(*args, app_instance=self, **kwargs)
         elif window_type is WindowType.PHOTO_VIEW_WINDOW:
             return PhotoViewWindow(*args, app_instance=self, **kwargs)
-        elif window_type == WindowType.SETTINGS_WINDOW:
-            return SettingsWindow(self, *args, **kwargs)
+        elif window_type == WindowType.DELETE_WELL_WINDOW:
+            return DeleteWellWindow(*args, app_instance=self, **kwargs)
+        elif window_type == WindowType.DELETE_INTERVAL_WINDOW:
+            return DeleteIntervalWindow(*args, app_instance=self, **kwargs)
         else:
             logging.error(f"Unknown window type: {window_type}")
             raise ValueError(f"Unknown window type: {window_type}")
@@ -109,7 +112,7 @@ class App(QMainWindow):
         try:
             with open(file_path, 'r', encoding='utf-8') as file:
                 project_data = json.load(file)
-                project = Project.from_dict(project_data)
+                project = Project(project_data["name"], os.path.dirname(file_path))
                 self.init_database_connection(project)
                 logging.info(f"Project loaded and database initialized for {project.name}.")
                 return project
@@ -123,7 +126,7 @@ class App(QMainWindow):
         project_file_path = os.path.join(project_path, f"{project_name}.json")
         try:
             with open(project_file_path, 'w', encoding='utf-8') as file:
-                json.dump(project.to_dict(), file, ensure_ascii=False, indent=4)
+                json.dump({"name": project.name}, file, ensure_ascii=False, indent=4)
                 self.init_database_connection(project)
                 logging.info(f"Project created at {project_file_path}.")
                 return project

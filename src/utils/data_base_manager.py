@@ -144,6 +144,35 @@ class DataBaseManager:
         query = "INSERT INTO Photos (photo_path, interval_id) VALUES (?, ?)"
         self.cursor.execute(query, (path, interval_id))
 
+    def delete_well_and_related_data(self, well_id):
+        """Удаляет скважину и все связанные с ней интервалы и фотографии."""
+        try:
+            # Удаляем все фотографии, связанные с интервалами данной скважины
+            self.cursor.execute("DELETE FROM Photos WHERE interval_id IN (SELECT id FROM Intervals WHERE well_id = ?)",
+                                (well_id,))
+            # Удаляем все интервалы этой скважины
+            self.cursor.execute("DELETE FROM Intervals WHERE well_id = ?", (well_id,))
+            # Удаляем саму скважину
+            self.cursor.execute("DELETE FROM Wells WHERE id = ?", (well_id,))
+            self.connection.commit()
+            logging.info("Well and all related intervals and photos deleted successfully.")
+        except sqlite3.Error as e:
+            logging.error("Failed to delete well and related data: %s", e)
+            self.connection.rollback()
+
+    def delete_interval_and_related_photos(self, interval_id):
+        """Удаляет интервал и все связанные с ним фотографии."""
+        try:
+            # Удаляем все фотографии, связанные с этим интервалом
+            self.cursor.execute("DELETE FROM Photos WHERE interval_id = ?", (interval_id,))
+            # Удаляем сам интервал
+            self.cursor.execute("DELETE FROM Intervals WHERE id = ?", (interval_id,))
+            self.connection.commit()
+            logging.info("Interval and all related photos deleted successfully.")
+        except sqlite3.Error as e:
+            logging.error("Failed to delete interval and related photos: %s", e)
+            self.connection.rollback()
+
     def close_connection(self):
         """Close the database connection."""
         self.connection.close()

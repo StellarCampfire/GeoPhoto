@@ -24,6 +24,7 @@ class IntervalWindow(BaseWindow):
         self.ui.back_button.clicked.connect(self.goto_well)
 
         self.ui.next_interval_pushButton.clicked.connect(self.goto_new_interval)
+        self.ui.delete_interval_pushButton.clicked.connect(self.goto_delete_interval)
 
         photos_buttons_list = []
 
@@ -35,13 +36,12 @@ class IntervalWindow(BaseWindow):
             photo_button.clicked.connect(partial(self.goto_photo_view, photo))
             self.focusable_elements.append(photo_button)
 
-        self.focusable_elements.append(self.ui.next_interval_pushButton)
-
         # Focus
         self.install_focusable_elements(
             self.ui.back_button,
             *photos_buttons_list,
-            self.ui.next_interval_pushButton)
+            self.ui.next_interval_pushButton,
+            self.ui.delete_interval_pushButton)
 
         self.start_focus = self.ui.next_interval_pushButton
 
@@ -61,3 +61,6 @@ class IntervalWindow(BaseWindow):
 
     def goto_photo_view(self, photo):
         self.switch_interface(WindowType.PHOTO_VIEW_WINDOW, self.project, self.well, self.interval, photo)
+
+    def goto_delete_interval(self):
+        self.switch_interface(WindowType.DELETE_INTERVAL_WINDOW, self.project, self.well, self.interval)

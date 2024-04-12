@@ -19,11 +19,13 @@ class CameraThread(QThread):
             camera.configure(config)
             camera.start()
             camera.capture_file(self.photo_path)
-            camera.stop()
-            camera.close()  # Explicitly close the camera
-            self.photoTaken.emit(self.photo_path)
         except Exception as e:
             print(f"Error capturing photo with camera {self.camera_index}: {e}")
+        finally:
+            if camera:
+                camera.stop()
+                camera.close()  # Explicitly close the camera to free up resources
+            self.photoTaken.emit(self.photo_path)
 
 class CameraApp(QMainWindow):
     def __init__(self):
@@ -54,7 +56,9 @@ class CameraApp(QMainWindow):
         photo_path = f"photo_{camera_index + 1}.jpg"
         thread = CameraThread(camera_index, photo_path)
         thread.photoTaken.connect(self.display_photo)
+        thread.finished.connect(thread.deleteLater)
         thread.finished.connect(self.on_photo_thread_finished)  # Connect finish event to handler
+
         thread.start()
 
     def on_photo_thread_finished(self):

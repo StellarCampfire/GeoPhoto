@@ -12,3 +12,5 @@ class WindowType(Enum):
     PHOTO_REVIEW_WINDOW = auto()
     PHOTO_VIEW_WINDOW = auto()
     SETTINGS_WINDOW = auto()
+    DELETE_WELL_WINDOW = auto()
+    DELETE_INTERVAL_WINDOW = auto()

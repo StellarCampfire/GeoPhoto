@@ -145,8 +145,8 @@ QLabel {
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>774</width>
-        <height>397</height>
+        <width>786</width>
+        <height>429</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -163,6 +163,13 @@ QLabel {
         <widget class="QPushButton" name="next_interval_pushButton">
          <property name="text">
           <string>Следующий интервал</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="delete_interval_pushButton">
+         <property name="text">
+          <string>Удалить интервал</string>
          </property>
         </widget>
        </item>

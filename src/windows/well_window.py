@@ -35,8 +35,8 @@ class WellWindow(BaseWindow):
             interval_button.clicked.connect(partial(self.goto_interval, interval))
 
         self.ui.back_button.clicked.connect(self.goto_project)
-
         self.ui.new_interval_button.clicked.connect(self.goto_new_interval)
+        self.ui.delete_well_pushButton.clicked.connect(self.goto_delete_well)
 
         spacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
         self.ui.intervals_buttons_verticalLayout.addItem(spacer)
@@ -45,7 +45,8 @@ class WellWindow(BaseWindow):
         self.install_focusable_elements(
             self.ui.back_button,
             self.ui.new_interval_button,
-            *intervals_buttons_list)
+            *intervals_buttons_list,
+            self.ui.delete_well_pushButton)
 
         self.start_focus = self.ui.new_interval_button
 
@@ -69,3 +70,6 @@ class WellWindow(BaseWindow):
 
     def goto_project(self):
         self.switch_interface(WindowType.PROJECT_WINDOW, self.project)
+
+    def goto_delete_well(self):
+        self.switch_interface(WindowType.DELETE_WELL_WINDOW, self.project, self.well)

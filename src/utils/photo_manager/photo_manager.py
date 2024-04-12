@@ -1,30 +1,46 @@
 import os
 import logging
 import threading
+import gc
+from PyQt5.QtCore import QThread, pyqtSignal
 
 from src.utils.photo_manager.base_photo_manager import BasePhotoManager
+
 from picamera2 import Picamera2
+
+
+class CameraThread(QThread):
+    photoTaken = pyqtSignal(str, name='photoTaken')
+
+    def __init__(self, camera_index, photo_path):
+        super().__init__()
+        self.camera_index = camera_index
+        self.photo_path = photo_path
+
+    def run(self):
+        try:
+            camera = Picamera2(self.camera_index)
+            config = camera.create_still_configuration()
+            camera.configure(config)
+            camera.start()
+            camera.capture_file(self.photo_path)
+            camera.stop()
+            camera.close()
+            self.photoTaken.emit(self.photo_path)
+        except Exception as e:
+            logging.error(f"Error capturing photo with camera {self.camera_index}: {e}")
+        finally:
+            self.cleanup()
+
+        def cleanup(self):
+            print("Cleaning up the thread and camera resources.")
+            self.deleteLater()
 
 
 class PhotoManager(BasePhotoManager):
     def __init__(self, temp_storage="temp/photos", permanent_storage="permanent_storage"):
         super().__init__(temp_storage, permanent_storage)
         self.cameras = []
-        # if self.check_cameras():
-            # self.setup_cameras()
-
-    def setup_cameras(self):
-        """Initializes cameras with configurations."""
-        try:
-            # Create and configure cameras
-            self.cameras = [Picamera2(i) for i in range(2)]
-            for camera in self.cameras:
-                config = camera.create_still_configuration()
-                camera.configure(config)
-            logging.info("Cameras configured successfully.")
-        except Exception as e:
-            logging.error(f"Camera setup failed: {e}")
-            raise
 
     def take_photo_with_camera(self, camera, project, well, camera_num):
         """Captures a photo using the specified camera."""
@@ -58,11 +74,14 @@ class PhotoManager(BasePhotoManager):
     def take_photos(self, project, well):
         """Initiates photo capture on all cameras in separate threads."""
         threads = []
-        results = [None] * len(self.cameras)
+        camera_num = 0
+        photo_path = os.path.join(
+            self.temp_photo_path,
+            self.generate_unique_photo_name(project, well, camera_num)
 
-        # def capture(index, camera):
-        #     results[index] = self.take_photo_with_camera(camera, project, well, index + 1)
+
         photo_paths = []
+
         photo_paths.append(self.take_photo_with_camera_and_free_mem(0, project, well))
         photo_paths.append(self.take_photo_with_camera_and_free_mem(1, project, well))
 
@@ -77,6 +96,15 @@ class PhotoManager(BasePhotoManager):
         #     thread.join()  # Wait for all threads to complete
 
         return results
+
+    def cleanup_and_proceed(self):
+        sender_thread = self.sender()
+        if sender_thread:
+            sender_thread.deleteLater()
+        gc.collect()  # Call garbage collection
+        # Here you can start the next operation or camera thread
+        if sender_thread.camera_index == 0:
+            self.take_photo(1)
 
     @staticmethod
     def check_cameras():

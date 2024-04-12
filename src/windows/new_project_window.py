@@ -37,7 +37,7 @@ class NewProjectWindow(BaseWindow):
             if project is not None:
                 self.goto_project(project)
         else:
-            self.ui.error_message_label.setText("Название проекта и путь не могут быть пустыми.")
+            self.ui.error_message_label.setText("Ошибка при создании проекта.")
 
     def goto_start(self):
         self.switch_interface(WindowType.START_WINDOW)

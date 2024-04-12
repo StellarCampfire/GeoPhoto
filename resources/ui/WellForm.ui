@@ -136,8 +136,8 @@ QPushButton:focus {
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>774</width>
-        <height>311</height>
+        <width>786</width>
+        <height>273</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -152,6 +152,13 @@ QPushButton:focus {
        </item>
       </layout>
      </widget>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="delete_well_pushButton">
+     <property name="text">
+      <string>Удалить скважину</string>
+     </property>
     </widget>
    </item>
   </layout>

@@ -1,7 +1,11 @@
+import os
+
+
 class Project:
     def __init__(self, name, path):
         self.name = name
         self.path = path
+        self.media_path = os.path.join(path, 'media')
 
     def to_dict(self):
         return {

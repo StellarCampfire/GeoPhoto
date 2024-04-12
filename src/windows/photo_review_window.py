@@ -15,7 +15,7 @@ class PhotoReviewWindow(BaseWindow):
         self.interval_settings = interval_settings
 
         self.photos = None
-        self.current_photo_index = None
+        self.current_photo_index = 0
 
         self.ui = Ui_PhotoReviewForm()
         self.ui.setupUi(self.central_widget)
