@@ -4,40 +4,13 @@ import threading
 import gc
 import time
 
+from threading import Event
+
 from PyQt5.QtCore import QThread, pyqtSignal
 
 from src.utils.photo_manager.base_photo_manager import BasePhotoManager
 
 from picamera2 import Picamera2
-
-
-class CameraThread(QThread):
-    photoTaken = pyqtSignal(str, name='photoTaken')
-
-    def __init__(self, camera_index, photo_path):
-        super().__init__()
-        self.camera_index = camera_index
-        self.photo_path = photo_path
-
-    def run(self):
-        try:
-            camera = Picamera2(self.camera_index)
-            config = camera.create_still_configuration()
-            camera.configure(config)
-            camera.start()
-            camera.capture_file(self.photo_path)
-            camera.stop()
-            camera.close()
-            self.photoTaken.emit(self.photo_path)
-        except Exception as e:
-            logging.error(f"Error capturing photo with camera {self.camera_index}: {e}")
-        finally:
-            self.cleanup()
-
-        def cleanup(self):
-            print("Cleaning up the thread and camera resources.")
-            self.deleteLater()
-
 
 class CameraContextManager:
     def __init__(self, camera_index):
@@ -65,52 +38,26 @@ class CameraContextManager:
 class PhotoManager(BasePhotoManager):
     def __init__(self, temp_storage="temp/photos"):
         super().__init__(temp_storage)
-        self.camera_indexes = [0, 1]
+        self.ready_to_start_next = Event()
+        self.ready_to_start_next.set()  # Изначально разрешаем стартовать первой камере
 
-    def take_photo_with_camera_and_free_mem(self, camera_index, photo_path):
-        logging.debug(f'take_photo_with_camera_and_free_mem {camera_index}: starting ctx ...')
+    def take_photo_with_camera(self, camera_index, photo_path):
+        self.ready_to_start_next.wait()  # Ждем разрешения на старт
+        self.ready_to_start_next.clear()  # Сбрасываем событие для блокировки следующей камеры
         with CameraContextManager(camera_index) as camera:
-            logging.debug(f'take_photo_with_camera_and_free_mem {camera_index}: ctx started')
             camera.capture_file(photo_path)
-
-        logging.debug(f'take_photo_with_camera_and_free_mem {camera_index}: ctx closed.')
-        gc.collect()
-        logging.debug(f'take_photo_with_camera_and_free_mem {camera_index}: gc collected.')
+        self.ready_to_start_next.set()  # Разрешаем следующей камере начать работу
+        gc.collect()  # Принудительная сборка мусора
         return photo_path
 
     def take_photos(self, project, well):
-        """Initiates photo capture on all cameras in separate threads."""
-        logging.debug("take_photos: Starting taking photo process ..... ")
         result = []
         for camera_index in self.camera_indexes:
             photo_path = os.path.join(self.temp_photo_path,
                                       self.generate_unique_photo_name(project, well, camera_index))
-            logging.debug(f'take_photos: start take_photo_camera_and_free_mem for camera {camera_index}')
-            photo_result = self.take_photo_with_camera_and_free_mem(camera_index, photo_path)
-            logging.debug(f'take_photos: finish take_photo_camera_and_free_mem for camera {camera_index}')
+            photo_result = self.take_photo_with_camera(camera_index, photo_path)
             result.append(photo_result)
-            logging.debug(f'take_photos {camera_index}: sleeping...')
-            time.sleep(4)
-            logging.debug(f'take_photos {camera_index}: wake up...')
-
         return result
-
-    @staticmethod
-    def generate_unique_photo_name(project, well, camera_num):
-        import time, uuid
-        timestamp = int(time.time() * 1000)
-        unique_id = uuid.uuid4().hex
-        return f"{project.name}_{well.name}_camera{camera_num}_{timestamp}_{unique_id}.jpg"
-
-    def cleanup_and_proceed(self):
-        sender_thread = self.sender()
-        if sender_thread:
-            sender_thread.deleteLater()
-        gc.collect()  # Call garbage collection
-        # Here you can start the next operation or camera thread
-        if sender_thread.camera_index == 0:
-            self.take_photo(1)
-
     @staticmethod
     def check_cameras():
         """Checks if at least two cameras are available."""
