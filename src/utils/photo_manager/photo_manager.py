@@ -38,6 +38,7 @@ class CameraContextManager:
 class PhotoManager(BasePhotoManager):
     def __init__(self, temp_storage="temp/photos"):
         super().__init__(temp_storage)
+        self.camera_indexes = [0, 1]
         self.ready_to_start_next = Event()
         self.ready_to_start_next.set()  # Изначально разрешаем стартовать первой камере
 
