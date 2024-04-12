@@ -36,6 +36,7 @@ class CameraThread(QThread):
             print("Cleaning up the thread and camera resources.")
             self.deleteLater()
 
+
 class CameraContextManager:
     def __init__(self, camera_index):
         self.camera_index = camera_index
@@ -61,6 +62,7 @@ class PhotoManager(BasePhotoManager):
     def take_photo_with_camera_and_free_mem(self, camera_index, photo_path):
         with CameraContextManager(camera_index) as camera:
             camera.capture_file(photo_path)
+        gc.collect()
         return photo_path
 
     def take_photos(self, project, well):
@@ -69,8 +71,8 @@ class PhotoManager(BasePhotoManager):
         for camera_index in self.camera_indexes:
             photo_path = os.path.join(self.temp_photo_path,
                                       self.generate_unique_photo_name(project, well, camera_index))
-            self.take_photo_with_camera_and_free_mem(camera_index, photo_path)
-            result.append(photo_path)
+            photo_result = self.take_photo_with_camera_and_free_mem(camera_index, photo_path)
+            result.append(photo_result)
 
         return result
 
