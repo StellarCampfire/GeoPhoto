@@ -7,7 +7,7 @@ from abc import ABC, abstractmethod
 
 
 class BasePhotoManager(ABC):
-    def __init__(self, temp_storage="temp/photos", permanent_storage="permanent_storage"):
+    def __init__(self, temp_storage="temp/photos"):
         self.temp_photo_path = temp_storage
         self.permanent_storage_path = 'media'
         self.setup_paths()

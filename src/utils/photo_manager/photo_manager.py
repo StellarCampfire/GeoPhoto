@@ -36,66 +36,50 @@ class CameraThread(QThread):
             print("Cleaning up the thread and camera resources.")
             self.deleteLater()
 
+class CameraContextManager:
+    def __init__(self, camera_index):
+        self.camera_index = camera_index
+        self.camera = None
+
+    def __enter__(self):
+        self.camera = Picamera2(self.camera_index)
+        config = self.camera.create_still_configuration()
+        self.camera.configure(config)
+        self.camera.start()
+        return self.camera
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.camera.stop()
+        del self.camera
+        gc.collect()
 
 class PhotoManager(BasePhotoManager):
-    def __init__(self, temp_storage="temp/photos", permanent_storage="permanent_storage"):
-        super().__init__(temp_storage, permanent_storage)
-        self.cameras = []
+    def __init__(self, temp_storage="temp/photos"):
+        super().__init__(temp_storage)
+        self.camera_indexes = [0, 1]
 
-    def take_photo_with_camera(self, camera, project, well, camera_num):
-        """Captures a photo using the specified camera."""
-        photo_name = self.generate_unique_photo_name(project, well, camera_num)
-        photo_path = os.path.join(self.temp_photo_path, photo_name)
-        try:
-            camera.start()
+    def take_photo_with_camera_and_free_mem(self, camera_index, photo_path):
+        with CameraContextManager(camera_index) as camera:
             camera.capture_file(photo_path)
-            camera.stop()
-            logging.info(f"Photo captured and saved at {photo_path}")
-            return photo_path
-        except Exception as e:
-            logging.error(f"Failed to capture photo with camera {camera_num}: {e}")
-            return None
-
-    def take_photo_with_camera_and_free_mem(self, camera_index, project, well):
-        photo_name = self.generate_unique_photo_name(project, well, camera_index)
-        photo_path = os.path.join(self.temp_photo_path, photo_name)
-
-        camera = Picamera2(camera_index)
-        config = camera.create_still_configuration()
-        camera.configure(config)
-
-        camera.start()
-        camera.capture_file(photo_path)
-        camera.stop()
-
         return photo_path
-
 
     def take_photos(self, project, well):
         """Initiates photo capture on all cameras in separate threads."""
-        threads = []
-        camera_num = 0
-        photo_path = os.path.join(
-            self.temp_photo_path,
-            self.generate_unique_photo_name(project, well, camera_num)
+        result = []
+        for camera_index in self.camera_indexes:
+            photo_path = os.path.join(self.temp_photo_path,
+                                      self.generate_unique_photo_name(project, well, camera_index))
+            self.take_photo_with_camera_and_free_mem(camera_index, photo_path)
+            result.append(photo_path)
 
+        return result
 
-        photo_paths = []
-
-        photo_paths.append(self.take_photo_with_camera_and_free_mem(0, project, well))
-        photo_paths.append(self.take_photo_with_camera_and_free_mem(1, project, well))
-
-
-
-        # for i, camera in enumerate(self.cameras):
-        #     thread = threading.Thread(target=capture, args=(i, camera))
-        #     threads.append(thread)
-        #     thread.start()
-        #
-        # for thread in threads:
-        #     thread.join()  # Wait for all threads to complete
-
-        return results
+    @staticmethod
+    def generate_unique_photo_name(project, well, camera_num):
+        import time, uuid
+        timestamp = int(time.time() * 1000)
+        unique_id = uuid.uuid4().hex
+        return f"{project.name}_{well.name}_camera{camera_num}_{timestamp}_{unique_id}.jpg"
 
     def cleanup_and_proceed(self):
         sender_thread = self.sender()
@@ -116,10 +100,4 @@ class PhotoManager(BasePhotoManager):
         logging.info("Camera availability confirmed.")
         return True
 
-    @staticmethod
-    def generate_unique_photo_name(project, well, camera_num):
-        """Generates a unique photo name based on project, well, and camera number."""
-        import time, uuid
-        timestamp = int(time.time() * 1000)
-        unique_id = uuid.uuid4().hex
-        return f"{project.name}_{well.name}_camera{camera_num}_{timestamp}_{unique_id}.jpg"
+

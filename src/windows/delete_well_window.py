@@ -1,9 +1,11 @@
-from src.windows.base_window import BaseWindow
-from src.core.window_types import WindowType
-from resources.py.DeleteForm import Ui_DeleteForm
 import shutil
 import os
 import logging
+
+from resources.py.DeleteForm import Ui_DeleteForm
+
+from src.windows.base_window import BaseWindow
+from src.core.window_types import WindowType
 
 
 class DeleteWellWindow(BaseWindow):
