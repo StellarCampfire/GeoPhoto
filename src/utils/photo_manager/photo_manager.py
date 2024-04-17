@@ -12,11 +12,13 @@ class PhotoManager(BasePhotoManager):
     async def take_photo_with_camera(self, camera_index, photo_path):
         """Асинхронно выполняет команду libcamera-still для съемки фотографии."""
         command = f"libcamera-still --camera {camera_index} --nopreview -o {photo_path}"
+        logging.info(f"Starting command {command}")
         process = await asyncio.create_subprocess_shell(
             command,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE
         )
+        logging.info(f"Wait command result {command}")
         stdout, stderr = await process.communicate()
         if stderr:
             logging.error(f"Error taking photo with camera {camera_index}: {stderr.decode()}")
