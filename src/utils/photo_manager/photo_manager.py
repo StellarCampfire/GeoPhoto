@@ -32,6 +32,7 @@ async def check_cameras():
         )
         stdout, stderr = await process.communicate()
 
+        stderr = stderr.decode('utf-8')
         if stderr:
             logging.error(f"Error checking cameras: {stderr.decode()}")
             return False
