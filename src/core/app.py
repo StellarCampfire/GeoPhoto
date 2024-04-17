@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import asyncio
 
 from PyQt5.QtWidgets import QMainWindow, QStackedWidget
 from src.core.window_types import WindowType
@@ -138,14 +139,17 @@ class App(QMainWindow):
         """Initializes the photo manager based on camera availability."""
         logging.info("Photo manager starting...")
         try:
-            from src.utils.photo_manager.photo_manager_old import PhotoManager
-            if PhotoManager.check_cameras():
+            from src.utils.photo_manager.photo_manager import PhotoManager
+
+            # Запуск асинхронной проверки камер синхронным образом
+            camera_check = asyncio.run(PhotoManager.check_cameras())
+            if camera_check:
                 self.photo_manager = PhotoManager()
                 logging.info("Photo manager started.")
             else:
                 logging.error("Photo_manager: No cameras found. Aborted.")
         except ImportError:
-            logging.warning("Picamera2 not available, initializing PhotoManagerEmulator.")
+            logging.warning("PhotoManager not available, initializing PhotoManagerEmulator.")
             return PhotoManagerEmulator()
 
     def init_photo_manager_emulator(self):
