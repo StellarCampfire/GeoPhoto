@@ -138,7 +138,7 @@ class App(QMainWindow):
         """Initializes the photo manager based on camera availability."""
         logging.info("Photo manager starting...")
         try:
-            from src.utils.photo_manager.photo_manager import PhotoManager
+            from src.utils.photo_manager.photo_manager_old import PhotoManager
             if PhotoManager.check_cameras():
                 self.photo_manager = PhotoManager()
                 logging.info("Photo manager started.")

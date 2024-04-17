@@ -1,4 +1,5 @@
-from PyQt5.QtCore import Qt
+import asyncio
+from PyQt5.QtCore import Qt, QThread, pyqtSignal, pyqtSlot
 from PyQt5.QtGui import QPixmap
 
 from src.windows.base_window import BaseWindow
@@ -23,11 +24,9 @@ class PhotoReviewWindow(BaseWindow):
         self.ui.yes_pushButton.clicked.connect(self.on_yes_clicked)
         self.ui.no_pushButton.clicked.connect(self.on_no_clicked)
 
-        self.photos = self.get_photo_manager().take_photos(self.project, self.well)
-        # # Инициализация потока и подключение сигналов
-        # self.photo_thread = PhotoTakingThread(self.get_photo_manager(), project, well)
-        # self.photo_thread.photos_ready.connect(self.update_photos)
-        # self.photo_thread.start()  # Запуск потока
+        self.photo_thread = PhotoThread(self.get_photo_manager(), project, well)
+        self.photo_thread.photos_ready.connect(self.update_photos)
+        self.photo_thread.start()
 
         # Показать сообщение о загрузке
         self.ui.photo_label.setText("Загрузка фотографий...")
@@ -39,7 +38,7 @@ class PhotoReviewWindow(BaseWindow):
 
         self.start_focus = self.ui.yes_pushButton
 
-
+    @pyqtSlot(list)
     def update_photos(self, photos):
         self.photos = photos
         self.current_photo_index = 0
@@ -91,3 +90,21 @@ class PhotoReviewWindow(BaseWindow):
 
     def goto_new_interval(self):
         self.switch_interface(WindowType.NEW_INTERVAL_WINDOW, self.project, self.well, self.interval_settings)
+
+
+class PhotoThread(QThread):
+    photos_ready = pyqtSignal(list)
+
+    def __init__(self, photo_manager, project, well, parent=None):
+        super().__init__(parent)
+        self.photo_manager = photo_manager
+        self.project = project
+        self.well = well
+
+    def run(self):
+        """Запускает event loop asyncio и получает фотографии асинхронно."""
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        photos = loop.run_until_complete(self.photo_manager.take_photos(self.project, self.well))
+        loop.close()
+        self.photos_ready.emit(photos)
