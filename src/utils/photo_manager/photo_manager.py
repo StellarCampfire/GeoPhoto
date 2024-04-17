@@ -31,8 +31,6 @@ async def check_cameras():
             stderr=asyncio.subprocess.PIPE
         )
         stdout, stderr = await process.communicate()
-
-        stderr = stderr.decode('utf-8')
         if stderr:
             logging.error(f"Error checking cameras: {stderr.decode()}")
             return False
@@ -63,6 +61,7 @@ async def take_photo_with_camera(camera_index, photo_path):
     logging.info(f"Wait command result {command}")
     stdout, stderr = await process.communicate()
 
+    stderr = stderr.decode('utf-8')
     if stderr:
         error_messages = [line for line in stderr.split('\n') if 'ERROR' in line or 'WARN' in line]
         if error_messages:
