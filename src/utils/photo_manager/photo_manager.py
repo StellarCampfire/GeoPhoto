@@ -11,6 +11,7 @@ class PhotoManager(BasePhotoManager):
 
     async def take_photos(self, project, well):
         """Асинхронно фотографирует с обеих настроенных камер."""
+        self.clear_temp_storage()
         tasks = []
         for camera_index in self.camera_indexes:
             photo_path = os.path.join(self.temp_photo_path,
@@ -60,8 +61,11 @@ async def take_photo_with_camera(camera_index, photo_path):
     )
     logging.info(f"Wait command result {command}")
     stdout, stderr = await process.communicate()
+
     if stderr:
-        logging.error(f"Error taking photo with camera {camera_index}: {stderr.decode()}")
-        return None
+        error_messages = [line for line in stderr.split('\n') if 'ERROR' in line or 'WARN' in line]
+        if error_messages:
+            logging.error(f"Error taking photo with camera {camera_index}: {stderr.decode()}")
+            return None
     logging.info(f"Photo taken with camera {camera_index}: {photo_path}")
     return photo_path
