@@ -8,7 +8,9 @@ from src.core.window_types import WindowType
 from src.models.project import Project
 
 from src.utils.data_base_manager import DataBaseManager
+
 from src.utils.photo_manager.photo_manager_emulator import PhotoManagerEmulator
+from src.utils.photo_manager.photo_manager import PhotoManager, check_cameras
 
 from src.windows.start_window import StartWindow
 from src.windows.interval_window import IntervalWindow
@@ -139,10 +141,10 @@ class App(QMainWindow):
         """Initializes the photo manager based on camera availability."""
         logging.info("Photo manager starting...")
         try:
-            from src.utils.photo_manager.photo_manager import PhotoManager
+
 
             # Запуск асинхронной проверки камер синхронным образом
-            camera_check = asyncio.run(PhotoManager.check_cameras())
+            camera_check = asyncio.run(check_cameras())
             if camera_check:
                 self.photo_manager = PhotoManager()
                 logging.info("Photo manager started.")
