@@ -24,9 +24,21 @@ QCheckBox {
 	font: 57 16pt &quot;Sono Medium&quot;;
 }
 
+QCheckBox:focus {
+    border: 2px solid #0057D9;
+    background-color: #E6F4FF;
+	border-radius: 5px;
+}
+
 QRadioButton {
 	text-align: center;
 	font: 57 16pt &quot;Sono Medium&quot;;
+}
+
+QRadioButton:focus {
+    border: 2px solid #0057D9;
+    background-color: #E6F4FF;
+	border-radius: 5px;
 }
 
 QWidget {
