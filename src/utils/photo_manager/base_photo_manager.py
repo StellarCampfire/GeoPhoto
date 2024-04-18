@@ -9,7 +9,7 @@ from abc import ABC, abstractmethod
 class BasePhotoManager(ABC):
     def __init__(self, temp_storage="temp/photos"):
         self.temp_photo_path = temp_storage
-        self.permanent_storage_path = 'media'
+        self.permanent_storage_path_in_project = 'media'
         self.setup_paths()
 
     @abstractmethod
@@ -51,7 +51,7 @@ class BasePhotoManager(ABC):
         """Moves photos from temporary to permanent storage, renaming them to include interval details."""
         permanent_folder = os.path.join(
             project.path,
-            self.permanent_storage_path,
+            self.permanent_storage_path_in_project,
             project.name, well.name,
             interval.get_full_name())
         os.makedirs(permanent_folder, exist_ok=True)
