@@ -30,6 +30,10 @@ class PhotoReviewWindow(BaseWindow):
         self.photo_thread.photos_ready.connect(self.update_photos)
         self.photo_thread.start()
 
+        # Блокировка кнопок
+        self.ui.yes_pushButton.setEnabled(False)
+        self.ui.no_pushButton.setEnabled(False)
+
         # Показать анимацию загрузки
         self.loading_movie = QMovie(os.path.join("resources", "animations", "loading.gif"))
         self.ui.photo_label.setMovie(self.loading_movie)
@@ -48,6 +52,9 @@ class PhotoReviewWindow(BaseWindow):
         self.current_photo_index = 0
         if self.photos:
             self.load_image()
+            self.ui.yes_pushButton.setEnabled(True)
+            self.ui.yes_pushButton.setFocus()
+            self.ui.no_pushButton.setEnabled(True)
         else:
             self.ui.photo_label.setText("Фотографии не найдены.")
 
