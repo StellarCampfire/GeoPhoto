@@ -7,7 +7,10 @@ from src.utils.photo_manager.base_photo_manager import BasePhotoManager
 
 
 class PhotoManagerEmulator(BasePhotoManager):
-    def __init__(self, temp_storage="temp/photos", sample_images_dir="sample_images"):
+    def __init__(
+            self,
+            temp_storage=os.path.join("temp", "photos"),
+            sample_images_dir=os.path.join("resources", "img", "sample_images")):
         super().__init__(temp_storage)
         self.sample_images_dir = sample_images_dir
         self.ensure_sample_images()

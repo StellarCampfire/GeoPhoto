@@ -1,6 +1,8 @@
 import asyncio
+import os.path
+
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, pyqtSlot
-from PyQt5.QtGui import QPixmap
+from PyQt5.QtGui import QPixmap, QMovie
 
 from src.windows.base_window import BaseWindow
 from src.core.window_types import WindowType
@@ -28,8 +30,10 @@ class PhotoReviewWindow(BaseWindow):
         self.photo_thread.photos_ready.connect(self.update_photos)
         self.photo_thread.start()
 
-        # Показать сообщение о загрузке
-        self.ui.photo_label.setText("Загрузка фотографий...")
+        # Показать анимацию загрузки
+        self.loading_movie = QMovie(os.path.join("resources", "animations", "loading.gif"))
+        self.ui.photo_label.setMovie(self.loading_movie)
+        self.loading_movie.start()
 
         # Focus
         self.install_focusable_elements(
