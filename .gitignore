@@ -1,7 +1,6 @@
 .idea/
 temp/
 permanent_storage/
-sample_images/
 ~*
 src/__pycache__/
 geo_photo_app.log
