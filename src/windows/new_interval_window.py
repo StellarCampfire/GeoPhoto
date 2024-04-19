@@ -31,8 +31,12 @@ class NewIntervalWindow(BaseWindow):
             self.ui.interval_to_increase_button
         )
 
-        self.custom_interval_from.setSingleStep(0.05)
-        self.custom_interval_to.setSingleStep(0.05)
+        self.custom_interval_from.setSingleStep(
+            float(self.get_config().get("logic", "interval_button_step", fallback="0.05"))
+        )
+        self.custom_interval_to.setSingleStep(
+            float(self.get_config().get("logic", "interval_button_step", fallback="0.05"))
+        )
 
         self.custom_interval_from.setValue(self.interval_settings.interval_from)
         self.custom_interval_to.setValue(self.interval_settings.interval_to)
