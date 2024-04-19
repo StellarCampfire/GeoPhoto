@@ -1,5 +1,8 @@
 import asyncio
+import logging
 import os.path
+
+from PIL import Image
 
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, pyqtSlot
 from PyQt5.QtGui import QPixmap, QMovie
@@ -51,12 +54,27 @@ class PhotoReviewWindow(BaseWindow):
         self.photos = photos
         self.current_photo_index = 0
         if self.photos:
+            for photo in self.photos:
+                try:
+                    crop_image(
+                        photo,
+                        int(self.get_config().get("crop", "left", fallback=0)),
+                        int(self.get_config().get("crop", "right", fallback=0)),
+                        int(self.get_config().get("crop", "top", fallback=0)),
+                        int(self.get_config().get("crop", "bottom", fallback=0)))
+                except Exception as e:
+                    self.ui.photo_label.setText(f"Ошибка при обработке фото: {str(e)}")
+                    self.ui.no_pushButton.setEnabled(True)
+                    self.ui.no_pushButton.setFocus()
+                    return
             self.load_image()
             self.ui.yes_pushButton.setEnabled(True)
             self.ui.yes_pushButton.setFocus()
             self.ui.no_pushButton.setEnabled(True)
         else:
             self.ui.photo_label.setText("Фотографии не найдены.")
+
+
 
     def on_yes_clicked(self):
         if self.current_photo_index < len(self.photos) - 1:
@@ -119,3 +137,17 @@ class PhotoThread(QThread):
         photos = loop.run_until_complete(self.photo_manager.take_photos(self.project, self.well))
         loop.close()
         self.photos_ready.emit(photos)
+
+
+def crop_image(file_path, left, right, top, bottom):
+    try:
+        with Image.open(file_path) as img:
+            width, height = img.size
+
+            crop_area = (left, top, width - right, height - bottom)
+            cropped_img = img.crop(crop_area)
+            cropped_img.save(file_path, quality=95)
+    except Exception as e:
+        logging.error(f"Error while cropp {file_path}: {str(e)}")
+        raise
+
