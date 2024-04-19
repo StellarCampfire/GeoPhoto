@@ -23,6 +23,7 @@ from src.windows.project_window import ProjectWindow
 from src.windows.well_window import WellWindow
 from src.windows.delete_well_window import DeleteWellWindow
 from src.windows.delete_interval_window import DeleteIntervalWindow
+from src.windows.settings_window import SettingsWindow
 
 
 class App(QMainWindow):
@@ -73,6 +74,8 @@ class App(QMainWindow):
         logging.debug(f"Creating a new window of type {window_type}.")
         if window_type == WindowType.START_WINDOW:
             return StartWindow(self, *args, **kwargs)
+        elif window_type == WindowType.SETTINGS_WINDOW:
+            return SettingsWindow(self, *args, **kwargs)
         elif window_type == WindowType.NEW_PROJECT_WINDOW:
             return NewProjectWindow(self, *args, **kwargs)
         elif window_type == WindowType.PROJECT_WINDOW:

@@ -6,6 +6,7 @@ from PyQt5.QtWidgets import QWidget
 from PyQt5.QtWidgets import QMainWindow
 from PyQt5.QtWidgets import QDoubleSpinBox
 from PyQt5.QtWidgets import QScrollArea
+from PyQt5.QtWidgets import QSpinBox
 
 
 class BaseWindow(QMainWindow):
@@ -49,7 +50,7 @@ class BaseWindow(QMainWindow):
                     self.focusable_elements[0].setFocus()
                 return True
             elif event.key() in [Qt.Key_Left, Qt.Key_Right]:
-                if isinstance(source, QDoubleSpinBox):
+                if isinstance(source, QDoubleSpinBox) or isinstance(source, QSpinBox):
                     pass
                 else:
                     return True

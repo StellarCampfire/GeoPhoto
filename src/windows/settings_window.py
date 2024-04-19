@@ -12,40 +12,50 @@ class SettingsWindow(BaseWindow):
         self.ui = Ui_SettingsForm()
         self.ui.setupUi(self.central_widget)
 
-        self.exp_spin_box = CustomSpinBox(
-            self.ui.exp_spinBox,
-            self.ui.exp_decrease_pushButton,
-            self.ui.exp_increase_pushButton)
+        self.left_crop_spin_box = CustomSpinBox(
+            self.ui.left_crop_spinBox,
+            self.ui.left_crop_decrease_pushButton,
+            self.ui.left_crop_increase_pushButton)
+        self.left_crop_spin_box.spin_box.setValue(int(self.get_config().get("crop", "left", fallback="0")))
 
-        self.exp_spin_box.spin_box.setMinimum(int(self.get_config().get('camera', 'exposition_min', fallback='-8')))
-        self.exp_spin_box.spin_box.setMaximum(
-            int(self.get_config().get('camera', 'exposition_max', fallback='8')))
-        self.exp_spin_box.spin_box.setValue(int(self.get_config().get('camera', 'exposition', fallback='0')))
-        self.exp_spin_box.setSingleStep(1)
+        self.right_crop_spin_box = CustomSpinBox(
+            self.ui.right_crop_spinBox,
+            self.ui.right_crop_decrease_pushButton,
+            self.ui.right_crop_increase_pushButton)
+        self.right_crop_spin_box.spin_box.setValue(int(self.get_config().get("crop", "right", fallback="0")))
 
-        self.iso_spin_box = CustomSpinBox(
-            self.ui.iso_spinBox,
-            self.ui.iso_decrease_pushButton,
-            self.ui.iso_increase_pushButton)
+        self.top_crop_spin_box = CustomSpinBox(
+            self.ui.top_crop_spinBox,
+            self.ui.top_crop_decrease_pushButton,
+            self.ui.top_crop_increase_pushButton)
+        self.top_crop_spin_box.spin_box.setValue(int(self.get_config().get("crop", "top", fallback="0")))
 
-        self.iso_spin_box.spin_box.setMinimum(int(self.get_config().get('camera', 'iso_min', fallback='0')))
-        self.iso_spin_box.spin_box.setMaximum(int(self.get_config().get('camera', 'iso_max', fallback='10000')))
-        self.iso_spin_box.spin_box.setValue(int(self.get_config().get('camera', 'iso', fallback='100')))
+        self.bottom_crop_spin_box = CustomSpinBox(
+            self.ui.bottom_crop_spinBox,
+            self.ui.bottom_crop_decrease_pushButton,
+            self.ui.bottom_crop_increase_pushButton)
+        self.bottom_crop_spin_box.spin_box.setValue(int(self.get_config().get("crop", "bottom", fallback="0")))
 
         self.ui.back_pushButton.clicked.connect(self.goto_start)
-
-        self.ui.take_photo_camera_1.clicked.connect(lambda: self.set_controls_and_show_photo(1))
-        self.ui.take_photo_camera_2.clicked.connect(lambda: self.set_controls_and_show_photo(2))
+        self.ui.save_settings_pushButton.clicked.connect(self.save_settings)
 
         # Focus
         self.install_focusable_elements(
             self.ui.back_pushButton,
-            self.ui.exp_spinBox,
-            self.ui.iso_spinBox,
-            self.ui.take_photo_camera_1,
-            self.ui.take_photo_camera_2)
+            self.ui.left_crop_spinBox,
+            self.ui.right_crop_spinBox,
+            self.ui.top_crop_spinBox,
+            self.ui.bottom_crop_spinBox,
+            self.ui.save_settings_pushButton)
 
-        self.get_photo_manager().get_default_still_config()
+        self.start_focus = self.ui.back_pushButton
 
     def goto_start(self):
-        self.switch_interface(WindowType.SETTINGS_WINDOW)
+        self.switch_interface(WindowType.START_WINDOW)
+
+    def save_settings(self):
+        self.get_config().set("crop", "left", str(self.left_crop_spin_box.value()))
+        self.get_config().set("crop", "right", str(self.right_crop_spin_box.value()))
+        self.get_config().set("crop", "top", str(self.top_crop_spin_box.value()))
+        self.get_config().set("crop", "bottom", str(self.bottom_crop_spin_box.value()))
+        self.goto_start()

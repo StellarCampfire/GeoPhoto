@@ -1,13 +1,10 @@
-import os
-
 from PyQt5.QtCore import Qt, QTimer, QEvent
 from PyQt5.QtWidgets import QWidget
+
 
 class CustomSpinBox(QWidget):
     def __init__(self, spin_box, decrease_button, increase_button, parent=None):
         super().__init__(parent)
-
-        self.style = self.load_styles_from_file(os.path.join('resources', 'styles', 'styles.qss'))
 
         self.spin_box = spin_box
         self.decrease_button = decrease_button
@@ -20,7 +17,6 @@ class CustomSpinBox(QWidget):
 
         self.decrease_button.setProperty("class", "CustomSpinboxButton")
         self.increase_button.setProperty("class", "CustomSpinboxButton")
-        self.applyStyles()
 
     def eventFilter(self, source, event):
         if event.type() == QEvent.KeyPress and source == self.spin_box:
@@ -41,12 +37,16 @@ class CustomSpinBox(QWidget):
 
     def animate_button_press(self, button):
         button.setProperty("class", "CustomSpinboxButtonPressed")
-        self.applyStyles()
+        button.style().unpolish(button)
+        button.style().polish(button)
+        button.update()
         QTimer.singleShot(100, lambda: self.reset_button_style(button))
 
     def reset_button_style(self, button):
         button.setProperty("class", "CustomSpinboxButton")
-        self.applyStyles()
+        button.style().unpolish(button)
+        button.style().polish(button)
+        button.update()
 
     def increase(self):
         self.animate_button_press(self.increase_button)
