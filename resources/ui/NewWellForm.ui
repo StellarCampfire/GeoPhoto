@@ -14,40 +14,7 @@
    <string>Form</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">QLabel {
-	text-align: center;
-	font: 57 16pt &quot;Sono Medium&quot;;
-}
-
-QWidget {
-    background-color: rgb(208, 225, 249);
-}
-
-QPushButton {
-    background-color: rgb(77, 100, 141);
-
-    color: white;
-    border-radius: 5px;
-	padding: 25;
-	font: 57 18pt &quot;Sono Medium&quot;;
-}
-
-QPushButton:focus {
-    background-color: rgb(40, 54, 85);
-
-    color: white;
-    border-radius: 5px;
-	padding: 25;
-	font: 57 18pt &quot;Sono Medium&quot;;
-}
-
-QLineEdit {
-	text-align: centrel;
-    border: none;
-	border-radius: 5px;
-    background-color: #E6F4FF;
-	font: 57 16pt &quot;Sono Medium&quot;;
-}</string>
+   <string notr="true"/>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_4">
    <item>

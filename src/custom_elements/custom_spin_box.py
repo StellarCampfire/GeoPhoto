@@ -7,7 +7,7 @@ class CustomSpinBox(QWidget):
     def __init__(self, spin_box, decrease_button, increase_button, parent=None):
         super().__init__(parent)
 
-        self.style = self.load_styles_from_file(os.path.join('resources', 'styles', 'style.qss'))
+        self.style = self.load_styles_from_file(os.path.join('resources', 'styles', 'styles.qss'))
 
         self.spin_box = spin_box
         self.decrease_button = decrease_button

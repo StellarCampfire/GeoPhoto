@@ -1,0 +1,100 @@
+QWidget {
+    background-color: rgb(208, 225, 249);
+}
+
+QLabel {
+    text-align: center;
+    font: 57 16pt "Sono Medium";
+}
+
+
+/*Buttons*/
+QPushButton {
+    background-color: rgb(77, 100, 141);
+    color: white;
+    border-radius: 5px;
+    padding: 25px;
+    font: 57 18pt "Sono Medium";
+}
+
+QPushButton:focus {
+    background-color: rgb(40, 54, 85);
+    color: white;
+    border-radius: 5px;
+	padding: 25;
+	font: 57 18pt "Sono Medium";
+}
+
+QPushButton[class="CustomSpinboxButton"] {
+    background-color: rgb(77, 100, 141);
+
+    color: white;
+    border-radius: 5px;
+	padding: 25;
+	font: 57 18pt "Sono Medium";
+}
+
+QPushButton[class="CustomSpinboxButtonPressed"] {
+    background-color: rgb(40, 54, 85);
+
+    color: white;
+    border-radius: 5px;
+	padding: 25;
+	font: 57 18pt "Sono Medium";
+}
+
+QRadioButton {
+    text-align: center;
+    font: 57 16pt "Sono Medium";
+}
+
+QRadioButton:focus {
+    border: 2px solid #0057D9;
+    background-color: #E6F4FF;
+	border-radius: 5px;
+}
+
+
+/* Check box */
+QCheckBox {
+    text-align: center;
+    font: 57 16pt "Sono Medium";
+}
+
+QCheckBox:focus {
+    border: 2px solid #0057D9;
+    background-color: #E6F4FF;
+	border-radius: 5px;
+}
+
+/* Spin box */
+QDoubleSpinBox {
+    text-align: center;
+    border: none;
+    border-radius: 5px;
+    background-color: #E6F4FF;
+    font: 57 16pt "Sono Medium";
+}
+
+QDoubleSpinBox:focus {
+    border: 2px solid #0057D9;
+    background-color: #E6F4FF;
+}
+
+
+
+
+QLineEdit {
+	text-align: center;
+    border: none;
+	border-radius: 5px;
+    background-color: #E6F4FF;
+	font: 57 16pt "Sono Medium";
+}
+
+
+
+
+
+
+

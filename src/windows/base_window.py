@@ -1,3 +1,5 @@
+import os.path
+
 from PyQt5.QtCore import Qt
 from PyQt5.QtCore import QEvent
 from PyQt5.QtWidgets import QWidget
@@ -16,6 +18,8 @@ class BaseWindow(QMainWindow):
 
         self.central_widget = QWidget()
         self.setCentralWidget(self.central_widget)
+
+        self.load_styles()
 
     def install_focus_event_filters(self):
         for element in self.focusable_elements:
@@ -76,3 +80,10 @@ class BaseWindow(QMainWindow):
 
     def get_config(self):
         return self.app.config_manager
+
+    def load_styles(self):
+        try:
+            with open(os.path.join("resources", "styles", "styles.qss"), "r") as style_file:
+                self.setStyleSheet(style_file.read())
+        except Exception as e:
+            print(f"Error loading styles: {e}")
