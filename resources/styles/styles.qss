@@ -13,7 +13,7 @@ QPushButton {
     background-color: rgb(77, 100, 141);
     color: white;
     border-radius: 5px;
-    padding: 25px;
+    padding: 15;
     font: 57 18pt "Sono Medium";
 }
 
@@ -21,7 +21,7 @@ QPushButton:focus {
     background-color: rgb(40, 54, 85);
     color: white;
     border-radius: 5px;
-	padding: 25;
+	padding: 15;
 	font: 57 18pt "Sono Medium";
 }
 
@@ -30,7 +30,7 @@ QPushButton[class="CustomSpinboxButton"] {
 
     color: white;
     border-radius: 5px;
-	padding: 25;
+	padding: 15;
 	font: 57 18pt "Sono Medium";
 }
 
@@ -39,7 +39,7 @@ QPushButton[class="CustomSpinboxButtonPressed"] {
 
     color: white;
     border-radius: 5px;
-	padding: 25;
+	padding: 15;
 	font: 57 18pt "Sono Medium";
 }
 
@@ -80,9 +80,6 @@ QDoubleSpinBox:focus {
     border: 2px solid #0057D9;
     background-color: #E6F4FF;
 }
-
-
-
 
 QLineEdit {
 	text-align: center;
