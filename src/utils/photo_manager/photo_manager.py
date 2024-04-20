@@ -9,14 +9,14 @@ class PhotoManager(BasePhotoManager):
         super().__init__(temp_storage)
         self.camera_indexes = [0, 1]  # индексы камер, которые будут использоваться
 
-    async def take_photos(self, project, well):
+    async def take_photos(self, project, well, width=-1, height=-1):
         """Асинхронно фотографирует с обеих настроенных камер."""
         self.clear_temp_storage()
         tasks = []
         for camera_index in self.camera_indexes:
             photo_path = os.path.join(self.temp_photo_path,
                                       self.generate_unique_photo_name(project, well, camera_index))
-            task = asyncio.create_task(take_photo_with_camera(camera_index, photo_path))
+            task = asyncio.create_task(take_photo_with_camera(camera_index, photo_path, width, height))
             tasks.append(task)
         return await asyncio.gather(*tasks)
 
@@ -49,9 +49,12 @@ async def check_cameras():
         return False
 
 
-async def take_photo_with_camera(camera_index, photo_path):
+async def take_photo_with_camera(camera_index, photo_path, width=-1, height=-1):
     """Асинхронно выполняет команду libcamera-still для съемки фотографии."""
     command = f"libcamera-still --camera {camera_index} --nopreview -o {photo_path}"
+    if width > 0 and height > 0:
+        command = command + f" --width {width} + --height {height}"
+
     logging.info(f"Starting command {command}")
     process = await asyncio.create_subprocess_shell(
         command,

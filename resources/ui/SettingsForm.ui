@@ -73,7 +73,7 @@
         <enum>QAbstractSpinBox::NoButtons</enum>
        </property>
        <property name="maximum">
-        <number>9999</number>
+        <number>99999</number>
        </property>
       </widget>
      </item>
@@ -196,6 +196,13 @@
       </spacer>
      </item>
     </layout>
+   </item>
+   <item>
+    <widget class="QLabel" name="label_6">
+     <property name="text">
+      <string>Фокус камер: -1 автофокус; 0 - бесконечность</string>
+     </property>
+    </widget>
    </item>
    <item>
     <spacer name="verticalSpacer">

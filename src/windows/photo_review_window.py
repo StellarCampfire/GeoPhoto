@@ -29,7 +29,12 @@ class PhotoReviewWindow(BaseWindow):
         self.ui.yes_pushButton.clicked.connect(self.on_yes_clicked)
         self.ui.no_pushButton.clicked.connect(self.on_no_clicked)
 
-        self.photo_thread = PhotoThread(self.get_photo_manager(), project, well)
+        self.photo_thread = PhotoThread(
+            self.get_photo_manager(),
+            project,
+            well,
+            self.get_config().get('camera', 'width', fallback=-1),
+            self.get_config().get('camera', 'height', fallback=-1))
         self.photo_thread.photos_ready.connect(self.update_photos)
         self.photo_thread.start()
 
@@ -124,17 +129,19 @@ class PhotoReviewWindow(BaseWindow):
 class PhotoThread(QThread):
     photos_ready = pyqtSignal(list)
 
-    def __init__(self, photo_manager, project, well, parent=None):
+    def __init__(self, photo_manager, project, well, width, height, parent=None):
         super().__init__(parent)
         self.photo_manager = photo_manager
         self.project = project
         self.well = well
+        self.width = width
+        self.height = height
 
     def run(self):
         """Запускает event loop asyncio и получает фотографии асинхронно."""
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
-        photos = loop.run_until_complete(self.photo_manager.take_photos(self.project, self.well))
+        photos = loop.run_until_complete(self.photo_manager.take_photos(self.project, self.well, self.height))
         loop.close()
         self.photos_ready.emit(photos)
 
