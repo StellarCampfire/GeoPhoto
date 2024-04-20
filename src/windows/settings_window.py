@@ -36,6 +36,18 @@ class SettingsWindow(BaseWindow):
             self.ui.bottom_crop_increase_pushButton)
         self.bottom_crop_spin_box.spin_box.setValue(int(self.get_config().get("crop", "bottom", fallback="0")))
 
+        self.width_spinbox = CustomSpinBox(
+            self.ui.width_spinBox,
+            self.ui.width_decrease_pushButton,
+            self.ui.width_increase_pushButton)
+        self.width_spinbox.spin_box.setValue(int(self.get_config().get("camera", "width", fallback="0")))
+
+        self.height_spinbox = CustomSpinBox(
+            self.ui.height_spinBox,
+            self.ui.height_decrease_pushButton,
+            self.ui.height_increase_pushButton)
+        self.height_spinbox.spin_box.setValue(int(self.get_config().get("camera", "height", fallback="0")))
+
         self.ui.back_pushButton.clicked.connect(self.goto_start)
         self.ui.save_settings_pushButton.clicked.connect(self.save_settings)
 
@@ -58,4 +70,6 @@ class SettingsWindow(BaseWindow):
         self.get_config().set("crop", "right", str(self.right_crop_spin_box.value()))
         self.get_config().set("crop", "top", str(self.top_crop_spin_box.value()))
         self.get_config().set("crop", "bottom", str(self.bottom_crop_spin_box.value()))
+        self.get_config().set("camera", "width", str(self.width_spinbox.value()))
+        self.get_config().set("camera", "height", str(self.height_spinbox.value()))
         self.goto_start()
