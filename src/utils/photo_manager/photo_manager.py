@@ -53,7 +53,7 @@ async def take_photo_with_camera(camera_index, photo_path, width=0, height=0):
     """Асинхронно выполняет команду libcamera-still для съемки фотографии."""
     command = f"libcamera-still --camera {camera_index} --nopreview -o {photo_path}"
     if width > 0 and height > 0:
-        command = command + f" --width {width} + --height {height}"
+        command = command + f" --width {str(width)} + --height {str(height)}"
 
     logging.info(f"Starting command {command}")
     process = await asyncio.create_subprocess_shell(

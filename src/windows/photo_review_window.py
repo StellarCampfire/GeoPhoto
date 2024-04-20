@@ -33,8 +33,8 @@ class PhotoReviewWindow(BaseWindow):
             self.get_photo_manager(),
             project,
             well,
-            self.get_config().get('camera', 'width', fallback=0),
-            self.get_config().get('camera', 'height', fallback=0))
+            int(self.get_config().get('camera', 'width', fallback=0)),
+            int(self.get_config().get('camera', 'height', fallback=0)))
         self.photo_thread.photos_ready.connect(self.update_photos)
         self.photo_thread.start()
 
