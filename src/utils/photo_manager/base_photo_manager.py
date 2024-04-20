@@ -13,7 +13,7 @@ class BasePhotoManager(ABC):
         self.setup_paths()
 
     @abstractmethod
-    def take_photos(self, project, well, width=-1, height=-1):
+    def take_photos(self, project, well, width=0, height=0):
         """Captures photos using both configured cameras."""
 
     def setup_paths(self):

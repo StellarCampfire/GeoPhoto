@@ -47,7 +47,7 @@ class PhotoManagerEmulator(BasePhotoManager):
         except IndexError:
             return None
 
-    async def take_photos(self, project, well, width=-1, height=-1):
+    async def take_photos(self, project, well, width=0, height=0):
         """Simulates capturing photos using both configured cameras asynchronously."""
         self.clear_temp_storage()
         tasks = [

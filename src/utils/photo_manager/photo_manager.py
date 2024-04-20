@@ -9,7 +9,7 @@ class PhotoManager(BasePhotoManager):
         super().__init__(temp_storage)
         self.camera_indexes = [0, 1]  # индексы камер, которые будут использоваться
 
-    async def take_photos(self, project, well, width=-1, height=-1):
+    async def take_photos(self, project, well, width=0, height=0):
         """Асинхронно фотографирует с обеих настроенных камер."""
         self.clear_temp_storage()
         tasks = []
@@ -49,7 +49,7 @@ async def check_cameras():
         return False
 
 
-async def take_photo_with_camera(camera_index, photo_path, width=-1, height=-1):
+async def take_photo_with_camera(camera_index, photo_path, width=0, height=0):
     """Асинхронно выполняет команду libcamera-still для съемки фотографии."""
     command = f"libcamera-still --camera {camera_index} --nopreview -o {photo_path}"
     if width > 0 and height > 0:
