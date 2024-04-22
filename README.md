@@ -78,3 +78,14 @@ This setup is ideal for development and testing on environments such as personal
 ### Practical Usage
 
 Using these command line options, you can tailor the application launch to fit various scenarios—from full deployment on a Raspberry Pi with actual camera hardware to a development setup on a PC. This flexibility facilitates easy testing and debugging, streamlining the development process for GeoPhoto.
+
+
+## Debian start
+
+### installing
+`sudo apt install python3-pyqt5`
+
+`sudo apt install pyqt5-dev-tools`
+
+`sudo apt install python3-pil`
+
