@@ -21,7 +21,7 @@ class BasePhotoManager(ABC):
         os.makedirs(self.temp_photo_path, exist_ok=True)
         logging.info("Storage paths set up at %s.", self.temp_photo_path)
 
-    def move_photos(self, destination, project, well, interval):
+    def move_photos(self, destination, interval):
         """Moves and renames all photos from the temporary location to the specified destination."""
         moved_photos = []
         for filename in os.listdir(self.temp_photo_path):
@@ -52,10 +52,10 @@ class BasePhotoManager(ABC):
         permanent_folder = os.path.join(
             project.path,
             self.permanent_storage_path_in_project,
-            project.name, well.name,
-            interval.get_full_name())
+            project.name,
+            well.name)
         os.makedirs(permanent_folder, exist_ok=True)
-        return self.move_photos(permanent_folder, project, well, interval)
+        return self.move_photos(permanent_folder, interval)
 
     @staticmethod
     def generate_unique_photo_name(project, well, camera_num):
