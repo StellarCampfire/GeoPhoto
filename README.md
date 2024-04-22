@@ -8,6 +8,6 @@
 `sh build_ui.sh`
 
 ## Build project
-`python build_project.py --os windows`
+`python build_project.py --os windows --ui`
 
-`python build_project.py --os windows`
+`python build_project.py --os lunux --ui`
