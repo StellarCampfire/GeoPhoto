@@ -1,7 +1,7 @@
-import sys
 import os
 import subprocess
 import argparse
+from build_ui import build_ui_files
 
 
 def build_project(target_os):
@@ -34,5 +34,8 @@ if __name__ == "__main__":
     parser.add_argument('--os', type=str, default='windows', choices=['windows', 'linux'],
                         help='Target operating system for the build: windows or linux')
     args = parser.parse_args()
+    parser.add_argument('--without_ui', action='store_true', help='build without build ui')
 
+    if not args.without_ui:
+        build_ui_files()
     build_project(args.os)
