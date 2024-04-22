@@ -2,6 +2,7 @@ import json
 import logging
 import os
 import asyncio
+import sys
 
 from PyQt5.QtWidgets import QMainWindow, QStackedWidget
 from src.core.window_types import WindowType

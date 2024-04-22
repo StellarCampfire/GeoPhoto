@@ -1,3 +1,5 @@
+import os
+
 from PyQt5.QtWidgets import QFileDialog
 from src.windows.base_window import BaseWindow
 from src.core.window_types import WindowType
@@ -33,6 +35,12 @@ class NewProjectWindow(BaseWindow):
         project_name = self.ui.project_name_input.text()
         project_path = self.ui.project_path_input.text()
         if project_name and project_path:
+            files_in_directory = os.listdir(project_path)
+            json_files = [file for file in files_in_directory if file.endswith('.json')]
+            if json_files:
+                (self.ui.error_message_label
+                 .setText(f"В выбранному пути уже был создан проект. Выберете другой путь. {json_files}"))
+                return
             project = self.app.create_and_verify_project(project_name, project_path)
             if project is not None:
                 self.goto_project(project)

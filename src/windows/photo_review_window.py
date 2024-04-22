@@ -7,7 +7,7 @@ from PIL import Image
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, pyqtSlot
 from PyQt5.QtGui import QPixmap, QMovie
 
-from src.windows.base_window import BaseWindow
+from src.windows.base_window import BaseWindow, resource_path
 from src.core.window_types import WindowType
 from resources.py.PhotoReviewForm import Ui_PhotoReviewForm
 
@@ -29,30 +29,38 @@ class PhotoReviewWindow(BaseWindow):
         self.ui.yes_pushButton.clicked.connect(self.on_yes_clicked)
         self.ui.no_pushButton.clicked.connect(self.on_no_clicked)
 
-        self.photo_thread = PhotoThread(
-            self.get_photo_manager(),
-            project,
-            well,
-            int(self.get_config().get('camera', 'width', fallback=0)),
-            int(self.get_config().get('camera', 'height', fallback=0)))
-        self.photo_thread.photos_ready.connect(self.update_photos)
-        self.photo_thread.start()
+        if self.get_photo_manager():
+            self.photo_thread = PhotoThread(
+                self.get_photo_manager(),
+                project,
+                well,
+                int(self.get_config().get('camera', 'width', fallback=0)),
+                int(self.get_config().get('camera', 'height', fallback=0)))
+            self.photo_thread.photos_ready.connect(self.update_photos)
+            self.photo_thread.start()
 
-        # Блокировка кнопок
-        self.ui.yes_pushButton.setEnabled(False)
-        self.ui.no_pushButton.setEnabled(False)
+            # Блокировка кнопок
+            self.ui.yes_pushButton.setEnabled(False)
+            self.ui.no_pushButton.setEnabled(False)
 
-        # Показать анимацию загрузки
-        self.loading_movie = QMovie(os.path.join("resources", "animations", "loading.gif"))
-        self.ui.photo_label.setMovie(self.loading_movie)
-        self.loading_movie.start()
+            # Показать анимацию загрузки
+            self.loading_movie = QMovie(resource_path(os.path.join("resources", "animations", "loading.gif")))
+            self.ui.photo_label.setMovie(self.loading_movie)
+            self.loading_movie.start()
 
-        # Focus
-        self.install_focusable_elements(
-            self.ui.yes_pushButton,
-            self.ui.no_pushButton)
+            # Focus
+            self.install_focusable_elements(
+                self.ui.yes_pushButton,
+                self.ui.no_pushButton)
 
-        self.start_focus = self.ui.yes_pushButton
+            self.start_focus = self.ui.yes_pushButton
+        else:
+            self.ui.photo_label.setText("Камеры не подключены")
+            self.ui.yes_pushButton.setEnabled(False)
+
+            self.install_focusable_elements(self.ui.no_pushButton)
+            self.start_focus = self.ui.no_pushButton
+
 
     @pyqtSlot(list)
     def update_photos(self, photos):
@@ -100,7 +108,8 @@ class PhotoReviewWindow(BaseWindow):
             self.goto_interval(new_interval)
 
     def on_no_clicked(self):
-        self.get_photo_manager().clear_temp_storage()
+        if self.get_photo_manager():
+            self.get_photo_manager().clear_temp_storage()
         self.goto_new_interval()
 
     def load_image(self):

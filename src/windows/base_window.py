@@ -1,4 +1,6 @@
+import logging
 import os.path
+import sys
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtCore import QEvent
@@ -84,7 +86,16 @@ class BaseWindow(QMainWindow):
 
     def load_styles(self):
         try:
-            with open(os.path.join("resources", "styles", "styles.qss"), "r") as style_file:
+            with open(resource_path(os.path.join("resources", "styles", "styles.qss")), "r") as style_file:
                 self.setStyleSheet(style_file.read())
         except Exception as e:
-            print(f"Error loading styles: {e}")
+            logging.error(f"Error loading styles: {e}")
+
+
+def resource_path(relative_path):
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
