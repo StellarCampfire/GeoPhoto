@@ -70,8 +70,8 @@ class NewIntervalWindow(BaseWindow):
             self.project,
             self.well,
             BaseIntervalSettings(
-                self.ui.interval_from_doubleSpinBox.value(),
-                self.ui.interval_to_doubleSpinBox.value(),
+                self.custom_interval_from.value(),
+                self.custom_interval_to.value(),
                 IntervalCondition.WET if self.ui.wet_radioButton.isChecked() else IntervalCondition.DRY,
                 self.ui.is_marked_checkBox.isChecked(),
             ))

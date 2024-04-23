@@ -60,7 +60,7 @@ class CustomSpinBox(QWidget):
         self.spin_box.setSingleStep(step)
 
     def value(self):
-        return self.spin_box.value()
+        return round(self.spin_box.value(), 2)
 
     def setValue(self, value):
         self.spin_box.setValue(value)
