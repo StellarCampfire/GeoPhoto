@@ -11,6 +11,7 @@ class SettingsWindow(BaseWindow):
 
         self.ui = Ui_SettingsForm()
         self.ui.setupUi(self.central_widget)
+        self.set_scroll_area(self.ui.scrollArea)
 
         self.left_crop_spin_box = CustomSpinBox(
             self.ui.left_crop_spinBox,
@@ -58,6 +59,8 @@ class SettingsWindow(BaseWindow):
             self.ui.right_crop_spinBox,
             self.ui.top_crop_spinBox,
             self.ui.bottom_crop_spinBox,
+            self.ui.width_spinBox,
+            self.ui.height_spinBox,
             self.ui.save_settings_pushButton)
 
         self.start_focus = self.ui.back_pushButton
