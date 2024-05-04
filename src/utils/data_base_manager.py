@@ -16,8 +16,8 @@ class DataBaseManager:
         self.setup_database()
         logging.info("DatabaseManager initialized for project: %s", project.name)
 
+    # Create tables if not exist
     def setup_database(self):
-        # Create tables if not exist
         queries = [
             '''CREATE TABLE IF NOT EXISTS Wells(
                 id INTEGER PRIMARY KEY,
@@ -111,7 +111,7 @@ class DataBaseManager:
 
     def add_interval(self, well_id, interval_settings):
         """Inserts a new interval into the database with automatic version management."""
-        # Получаем текущую максимальную версию для данного интервала
+        # Get the current maximum version for the given interval
         self.cursor.execute("""
             SELECT MAX(version) FROM Intervals 
             WHERE well_id = ? AND interval_from = ? AND interval_to = ? AND condition = ? AND is_marked = ?
@@ -119,9 +119,9 @@ class DataBaseManager:
               interval_settings.is_marked))
 
         max_version = self.cursor.fetchone()[0]
-        new_version = (max_version or 0) + 1  # Если версия не найдена, начинаем с 1
+        new_version = (max_version or 0) + 1  # If no version is found, start from 1
 
-        # Вставляем новый интервал с увеличенной версией
+        # Inserting a new interval with an enlarged version
         query = """
             INSERT INTO Intervals (interval_from, interval_to, well_id, condition, is_marked, version)
             VALUES (?, ?, ?, ?, ?, ?)
@@ -145,14 +145,14 @@ class DataBaseManager:
         self.cursor.execute(query, (path, interval_id))
 
     def delete_well_and_related_data(self, well_id):
-        """Удаляет скважину и все связанные с ней интервалы и фотографии."""
+        """Deletes the well and all associated intervals and photos."""
         try:
-            # Удаляем все фотографии, связанные с интервалами данной скважины
+            # Delete all photos associated with the intervals of this well
             self.cursor.execute("DELETE FROM Photos WHERE interval_id IN (SELECT id FROM Intervals WHERE well_id = ?)",
                                 (well_id,))
-            # Удаляем все интервалы этой скважины
+            # Delete all intervals of this well
             self.cursor.execute("DELETE FROM Intervals WHERE well_id = ?", (well_id,))
-            # Удаляем саму скважину
+            # Remove the well itself
             self.cursor.execute("DELETE FROM Wells WHERE id = ?", (well_id,))
             self.connection.commit()
             logging.info("Well and all related intervals and photos deleted successfully.")
@@ -161,11 +161,11 @@ class DataBaseManager:
             self.connection.rollback()
 
     def delete_interval_and_related_photos(self, interval_id):
-        """Удаляет интервал и все связанные с ним фотографии."""
+        """Deletes the interval and all associated photos."""
         try:
-            # Удаляем все фотографии, связанные с этим интервалом
+            # Delete all photos associated with this interval
             self.cursor.execute("DELETE FROM Photos WHERE interval_id = ?", (interval_id,))
-            # Удаляем сам интервал
+            # Delete the interval itself
             self.cursor.execute("DELETE FROM Intervals WHERE id = ?", (interval_id,))
             self.connection.commit()
             logging.info("Interval and all related photos deleted successfully.")

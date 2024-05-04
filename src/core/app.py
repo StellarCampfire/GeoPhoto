@@ -147,7 +147,7 @@ class App(QMainWindow):
         try:
 
 
-            # Запуск асинхронной проверки камер синхронным образом
+            # Start asynchronous camera test in a synchronous
             camera_check = asyncio.run(check_cameras())
             if camera_check:
                 self.photo_manager = PhotoManager()

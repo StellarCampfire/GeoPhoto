@@ -7,10 +7,10 @@ from src.utils.photo_manager.base_photo_manager import BasePhotoManager
 class PhotoManager(BasePhotoManager):
     def __init__(self, temp_storage="temp/photos"):
         super().__init__(temp_storage)
-        self.camera_indexes = [0, 1]  # индексы камер, которые будут использоваться
+        self.camera_indexes = [0, 1]  # indexes of cameras to be used
 
+    # Asynchronously takes photos with both cameras set up
     async def take_photos(self, project, well, width=0, height=0):
-        """Асинхронно фотографирует с обеих настроенных камер."""
         self.clear_temp_storage()
         tasks = []
         for camera_index in self.camera_indexes:
@@ -21,8 +21,8 @@ class PhotoManager(BasePhotoManager):
         return await asyncio.gather(*tasks)
 
 
+# Asynchronously checks the number of available cameras by parsing the output of the command.
 async def check_cameras():
-    """Асинхронно проверяет количество доступных камер, парся вывод команды."""
     command = "libcamera-hello --list-cameras"
     try:
         process = await asyncio.create_subprocess_shell(
@@ -35,7 +35,7 @@ async def check_cameras():
             logging.error(f"Error checking cameras: {stderr.decode()}")
             return False
 
-        # Парсинг вывода команды для определения количества доступных камер
+        # Parsing the command output to determine the number of available cameras
         num_cameras = sum(1 for line in stdout.decode().split('\n') if
                           line.strip().startswith(tuple(f"{i} :" for i in range(10))))
         if num_cameras >= 2:
@@ -48,9 +48,8 @@ async def check_cameras():
         logging.error(f"An error occurred while checking cameras: {e}")
         return False
 
-
+# Asynchronously executes the libcamera-still command to take a picture.
 async def take_photo_with_camera(camera_index, photo_path, width=0, height=0):
-    """Асинхронно выполняет команду libcamera-still для съемки фотографии."""
     command = f"libcamera-still --camera {camera_index} --nopreview -o {photo_path}"
     if width > 0 and height > 0:
         command = command + f" --width {str(width)} + --height {str(height)}"
