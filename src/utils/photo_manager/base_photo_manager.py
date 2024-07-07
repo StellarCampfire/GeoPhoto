@@ -27,7 +27,6 @@ class BasePhotoManager(ABC):
                         "# A comment line starts with symbol '#'\n",
                         "# the default command is \"libcamera-still --nopreview\"\n",
                         "# you can add and change any another parameters\n",
-                        "-t 5000\n",
                         "--autofocus-mode manual\n",
                         "--lens-position 5\n",
                         "--metering spot\n",
