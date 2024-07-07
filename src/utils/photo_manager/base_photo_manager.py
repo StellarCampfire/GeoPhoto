@@ -10,11 +10,29 @@ class BasePhotoManager(ABC):
     def __init__(self, temp_storage="temp/photos"):
         self.temp_photo_path = temp_storage
         self.permanent_storage_path_in_project = 'media'
+        self.setup_default_command_parameters()
         self.setup_paths()
 
     @abstractmethod
     def take_photos(self, project, well, width=0, height=0):
         """Captures photos using both configured cameras."""
+
+    def setup_default_command_parameters(self):
+        file_path = "./photo_command_parameters.txt"
+
+        if not os.path.exists(file_path):
+            with open(file_path, "w") as command_file:
+                command_file.writelines(
+                    [
+                        "# A comment line starts with symbol '#'\n",
+                        "# the default command is \"libcamera-still --nopreview\"\n",
+                        "# you can add and change any another parameters\n",
+                        "-t 5000\n",
+                        "--autofocus-mode manual\n",
+                        "--lens-position 5\n",
+                        "--metering spot\n",
+                    ]
+                )
 
     def setup_paths(self):
         """Ensure all required directories exist."""

@@ -48,12 +48,35 @@ async def check_cameras():
         logging.error(f"An error occurred while checking cameras: {e}")
         return False
 
+def make_command(camera_index, photo_path, width=0, height=0):
+    command = f"libcamera-still --nopreview"
+    with open('../../../photo_command_parameters.txt') as file_command_parameters:
+        lines = file_command_parameters.readlines()
+        for line in lines:
+            format_line = line.lstrip().replace("\r","").replace("\n","")
+            if len(format_line) == 0 or format_line[0] == '#':
+                continue
+            command = command + " " + format_line
+
+    if command.find(" --width ") == -1 and width != 0:
+        command = command + f" --width {str(width)}"
+
+    if command.find(" --height ") == -1 and width != 0:
+        command = command + f" --height {str(height)}"
+
+    if command.find(" --camera ") == -1:
+        command = command + f" --camera {str(camera_index)}"
+
+    if command.find(" -o ") == -1:
+        command = command + f" -o {str(photo_path)}"
+
+    print("photo command: " + command)
+    return command
+
+
 # Asynchronously executes the libcamera-still command to take a picture.
 async def take_photo_with_camera(camera_index, photo_path, width=0, height=0):
-    command = f"libcamera-still --camera {camera_index} --nopreview -o {photo_path}"
-    if width > 0 and height > 0:
-        command = command + f" --width {str(width)} + --height {str(height)}"
-
+    command = make_command(camera_index, photo_path, width, height)
     logging.info(f"Starting command {command}")
     process = await asyncio.create_subprocess_shell(
         command,
