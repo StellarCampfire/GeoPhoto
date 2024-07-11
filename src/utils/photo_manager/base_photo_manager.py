@@ -21,7 +21,7 @@ class BasePhotoManager(ABC):
         file_path = "./photo_command_parameters.txt"
 
         if not os.path.exists(file_path):
-            with open(file_path, "w") as command_file:
+            with open(file_path, "w", encoding='utf-8') as command_file:
                 command_file.writelines(
                     [
                         "# A comment line starts with symbol '#'\n",

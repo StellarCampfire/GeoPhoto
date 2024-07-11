@@ -50,7 +50,7 @@ async def check_cameras():
 
 def make_command(camera_index, photo_path, width=0, height=0):
     command = f"libcamera-still --nopreview"
-    with open('./photo_command_parameters.txt') as file_command_parameters:
+    with open('./photo_command_parameters.txt', encoding='utf-8') as file_command_parameters:
         lines = file_command_parameters.readlines()
         for line in lines:
             format_line = line.lstrip().replace("\r","").replace("\n","")

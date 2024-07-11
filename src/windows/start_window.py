@@ -39,6 +39,7 @@ class   StartWindow(BaseWindow):
             project = self.app.load_project_from_file(project_file_path)
             if project is not None:
                 self.app.init_database_connection(project)
+                self.app.save_current_project_path(project)
                 self.goto_project(project)
 
     def goto_new_project(self):

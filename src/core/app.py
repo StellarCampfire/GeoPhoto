@@ -26,6 +26,7 @@ from src.windows.delete_well_window import DeleteWellWindow
 from src.windows.delete_interval_window import DeleteIntervalWindow
 from src.windows.settings_window import SettingsWindow
 
+LAST_PROJECT_SAVE = './last_project_save.txt'
 
 class App(QMainWindow):
     def __init__(self, sys_argv, config_manager, emulate=False, resolution=None):
@@ -49,7 +50,8 @@ class App(QMainWindow):
 
         logging.debug('Switching start window...')
 
-        self.switch_interface(WindowType.START_WINDOW)
+        self.open_correct_start_window()
+
         logging.debug('App started.')
 
         if self.resolution:
@@ -101,6 +103,22 @@ class App(QMainWindow):
             logging.error(f"Unknown window type: {window_type}")
             raise ValueError(f"Unknown window type: {window_type}")
 
+    def open_correct_start_window(self):
+        project_path = None
+
+        if os.path.exists(LAST_PROJECT_SAVE):
+            with open(LAST_PROJECT_SAVE, 'r', encoding='utf-8') as file:
+                project_path = file.read().strip()
+
+        if project_path and os.path.exists(project_path):
+            project = self.load_project_from_file(project_path)
+            if project:
+                self.init_database_connection(project)
+                self.switch_interface(WindowType.PROJECT_WINDOW, project)
+                return
+
+        self.switch_interface(WindowType.START_WINDOW)
+
     def init_database_connection(self, project):
         """Initializes the database connection for the given project."""
         if not self.db_manager:
@@ -126,6 +144,10 @@ class App(QMainWindow):
         except Exception as e:
             logging.error(f"Failed to load project from {file_path}: {e}")
             return None
+
+    def save_current_project_path(self, project):
+        with open(LAST_PROJECT_SAVE, 'w', encoding='utf-8') as file:
+            file.write(project.get_file_path())
 
     def create_and_verify_project(self, project_name, project_path):
         """Creates a new project and verifies its integrity."""

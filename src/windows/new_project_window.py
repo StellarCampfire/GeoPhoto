@@ -43,6 +43,7 @@ class NewProjectWindow(BaseWindow):
                 return
             project = self.app.create_and_verify_project(project_name, project_path)
             if project is not None:
+                self.app.save_current_project_path(project)
                 self.goto_project(project)
         else:
             self.ui.error_message_label.setText("Ошибка при создании проекта.")
