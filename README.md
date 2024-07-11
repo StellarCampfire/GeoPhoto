@@ -89,3 +89,23 @@ Using these command line options, you can tailor the application launch to fit v
 
 `sudo apt install python3-pil`
 
+
+## Деплой на устройство
+Если программа раннее не устанавливалась, или отсутствует папка с исходниками в GeoPhoto в домашней директории пользователя 
+- Команда для проверки существует ли директория GeoPhoto
+`[ -d ~/GeoPhoto ] && echo "GeoPhoto directory exists" && ls -l ~/GeoPhoto || echo "GeoPhoto directory does not exist"`
+
+То необходимо выполнить шаг "Клонирование репозитория"
+
+#### Клонирование репозитория
+(git должен быть установлен на устройстве)
+1. `cd ~` переход в домашнюю директорию пользователя.
+2. `git clone https://github.com/StellarCampfire/GeoPhoto.git` скачивание репозитория
+
+В папке пользователя появилась папка GeoPhoto в которую можно перейти и проверить состояние репозитория:
+
+- `cd ~/GeoPhoto` - переход в папку GeoPhoto 
+- `git status` - команда должна выполняться из директории GeoPhoto
+
+#### Обновление репозитория и сборка вручную (получение изменений)
+- `git pull` - получение последних обновлений репозитория. Команда должна выполняться из директории GeoPhoto
