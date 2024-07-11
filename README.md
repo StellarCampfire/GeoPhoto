@@ -6,10 +6,10 @@ GeoPhoto is a software solution designed to be installed on a Raspberry Pi equip
 
 ## Features
 
-- **Project Management:** Users can create projects within the software, each containing multiple wells. Each well can have numerous defined intervals, and each interval stores two photographs taken from the two different cameras.
+- **Project Management:** Create projects within the software, each containing multiple wells. Each well can have numerous defined intervals, and each interval stores two photographs taken from the two different cameras.
 - **Photo Storage:** All photographs are stored within the project's `media` folder, organizing data efficiently and simplifying access to visual information.
-- **Photo Review and Confirmation:** After photographs are taken, the operator has the option to confirm each image sequentially. If an image is deemed unsatisfactory, the operator can revert to the interval editing stage for retakes or adjustments.
-- **Customizable Photo Resolution and Processing:** Users can adjust the resolution of the photographs and set parameters for how much can be trimmed from each side of an image to reduce file size and optimize storage.
+- **Photo Review and Confirmation:** After photographs are taken, the operator can confirm each image sequentially. If an image is deemed unsatisfactory, the operator can revert to the interval editing stage for retakes or adjustments.
+- **Customizable Photo Resolution and Processing:** Adjust the resolution of the photographs and set parameters for how much can be trimmed from each side of an image to reduce file size and optimize storage.
 
 ## Technical Details
 
@@ -22,6 +22,86 @@ GeoPhoto is a software solution designed to be installed on a Raspberry Pi equip
   - `PIL` for image processing
   - `pyinstaller` for compiling the project into an executable file
 - **Configuration and Logs:** The application generates a `config.ini` file and maintains a `logs` directory to record operational logs, enhancing troubleshooting and maintenance.
+
+## Debian Start
+
+### Dependencies
+
+- **Git:**
+  ```bash
+  sudo apt-get update && sudo apt-get install -y git
+  ```
+- **Python:**
+  ```bash
+  sudo apt-get update && sudo apt-get install -y python3
+  sudo ln -s /usr/bin/python3 /usr/bin/python
+  ```
+- **PIP:**
+  ```bash
+  sudo apt install python3-pip
+  ```
+- **PyQT5:**
+  ```bash
+  sudo apt install python3-pyqt5
+  sudo apt install pyqt5-dev-tools
+  ```
+- **PIL:**
+  ```bash
+  sudo apt install python3-pil
+  ```
+- **PyInstaller:**
+  ```bash
+  pip install pyinstaller
+  echo 'export PATH=$PATH:/home/delta/.local/bin' >> ~/.bashrc && source ~/.bashrc
+  ```
+
+## Deployment on Device
+
+Run the following command to update the repository to the latest version, compile the source files into a program, place the program in the user's home directory in the Geo folder, and create a shortcut on the desktop. The command is executed from the GeoPhoto folder:
+
+```bash
+sh deploy.sh
+```
+
+### Cloning the Repository
+
+If the program has not been installed before, or if the ~/GeoPhoto directory is missing, perform the "Cloning the Repository" step. To check if the GeoPhoto directory exists, use:
+
+```bash
+[ -d ~/GeoPhoto ] && echo "GeoPhoto directory exists" && ls -l ~/GeoPhoto || echo "GeoPhoto directory does not exist"
+```
+
+To clone the repository (git must be installed on the device):
+
+1. Navigate to the home directory:
+   ```bash
+   cd ~
+   ```
+2. Clone the repository:
+   ```bash
+   git clone https://github.com/StellarCampfire/GeoPhoto.git
+   ```
+
+Check the repository state:
+
+- Navigate to the GeoPhoto folder:
+  ```bash
+  cd ~/GeoPhoto
+  ```
+- Check repository status:
+  ```bash
+  git status
+  ```
+
+### Updating the Repository and Manual Build
+
+To get the latest updates and build manually, execute:
+
+```bash
+git pull
+```
+
+This command should be run from the GeoPhoto directory.
 
 ## Building the Project
 
@@ -45,15 +125,11 @@ These commands will compile the project, incorporating all necessary user interf
 - **Executable Output:** The compiled application, `GeoPhoto.exe`, can be found in the `dist` directory following successful compilation.
 - **Project Structure:** Each project is self-contained within its own directory, which includes a `.json` file for project metadata, a `.db` file for the database, and a `media` folder for storing images.
 
-This structure ensures that each project is portable and encapsulated, 
-making management and archival straightforward.
+This structure ensures that each project is portable and encapsulated, making management and archival straightforward.
 
 ## Usage and Deployment
 
-Deploying GeoPhoto on a Raspberry Pi involves setting up the hardware with the two cameras, 
-installing the software, and configuring the device for field deployment. 
-The user-friendly interface allows geologists and technicians to efficiently 
-manage geological core imaging tasks directly from the field.
+Deploying GeoPhoto on a Raspberry Pi involves setting up the hardware with the two cameras, installing the software, and configuring the device for field deployment. The user-friendly interface allows geologists and technicians to efficiently manage geological core imaging tasks directly from the field.
 
 ## Running the Application
 
@@ -78,45 +154,3 @@ This setup is ideal for development and testing on environments such as personal
 ### Practical Usage
 
 Using these command line options, you can tailor the application launch to fit various scenarios—from full deployment on a Raspberry Pi with actual camera hardware to a development setup on a PC. This flexibility facilitates easy testing and debugging, streamlining the development process for GeoPhoto.
-
-
-## Debian start
-
-### Dependensies
-- Git 
-  - `sudo apt-get update && sudo apt-get install -y git`
-- Python 
-  - `sudo apt-get update && sudo apt-get install -y python3` 
-  - `sudo ln -s /usr/bin/python3 /usr/bin/python`
-- PIP
-  - `sudo apt install python3-pip`
-- PyQT5
-  - `sudo apt install python3-pyqt5`
-  - `sudo apt install pyqt5-dev-tools`
-- PIL
-  - `sudo apt install python3-pil`
-- PiInstaller
-  - `pip install pyinstaller`
-  - `echo 'export PATH=$PATH:/home/delta/.local/bin' >> ~/.bashrc && source ~/.bashrc`
-
-## Деплой на устройство
-`sh deploy.sh` - команда обновляет репозиторий до последней версии, собирает исходные файлы в программу, помещает программу в домашню директорию пользователя в папку Geo и создает ярлык на рабочем столе. Команда запускается из папки GeoPhoto. 
-- Если программа раннее не устанавливалась, или отсутствует папка ~/GeoPhoto в домашней директории пользователя, то необходимо выполнить шаг "Клонирование репозитория"
-  - Команда для проверки существует ли директория GeoPhoto
-  `[ -d ~/GeoPhoto ] && echo "GeoPhoto directory exists" && ls -l ~/GeoPhoto || echo "GeoPhoto directory does not exist"`
-- Если во время деплоя будут появляться сообщения об отсутствии каких либо зависимостей, то см. "Зависимости"
-
-
-
-#### Клонирование репозитория
-(git должен быть установлен на устройстве)
-1. `cd ~` переход в домашнюю директорию пользователя.
-2. `git clone https://github.com/StellarCampfire/GeoPhoto.git` скачивание репозитория
-
-В папке пользователя появилась папка GeoPhoto в которую можно перейти и проверить состояние репозитория:
-
-- `cd ~/GeoPhoto` - переход в папку GeoPhoto 
-- `git status` - команда должна выполняться из директории GeoPhoto
-
-#### Обновление репозитория и сборка вручную (получение изменений)
-- `git pull` - получение последних обновлений репозитория. Команда должна выполняться из директории GeoPhoto
