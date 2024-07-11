@@ -82,20 +82,31 @@ Using these command line options, you can tailor the application launch to fit v
 
 ## Debian start
 
-### installing
-`sudo apt install python3-pyqt5`
-
-`sudo apt install pyqt5-dev-tools`
-
-`sudo apt install python3-pil`
-
+### Dependensies
+- Git 
+  - `sudo apt-get update && sudo apt-get install -y git`
+- Python 
+  - `sudo apt-get update && sudo apt-get install -y python3` 
+  - `sudo ln -s /usr/bin/python3 /usr/bin/python`
+- PIP
+  - `sudo apt install python3-pip`
+- PyQT5
+  - `sudo apt install python3-pyqt5`
+  - `sudo apt install pyqt5-dev-tools`
+- PIL
+  - `sudo apt install python3-pil`
+- PiInstaller
+  - `pip install pyinstaller`
+  - `echo 'export PATH=$PATH:/home/delta/.local/bin' >> ~/.bashrc && source ~/.bashrc`
 
 ## Деплой на устройство
-Если программа раннее не устанавливалась, или отсутствует папка с исходниками в GeoPhoto в домашней директории пользователя 
-- Команда для проверки существует ли директория GeoPhoto
-`[ -d ~/GeoPhoto ] && echo "GeoPhoto directory exists" && ls -l ~/GeoPhoto || echo "GeoPhoto directory does not exist"`
+`sh deploy.sh` - команда обновляет репозиторий до последней версии, собирает исходные файлы в программу, помещает программу в домашню директорию пользователя в папку Geo и создает ярлык на рабочем столе. Команда запускается из папки GeoPhoto. 
+- Если программа раннее не устанавливалась, или отсутствует папка ~/GeoPhoto в домашней директории пользователя, то необходимо выполнить шаг "Клонирование репозитория"
+  - Команда для проверки существует ли директория GeoPhoto
+  `[ -d ~/GeoPhoto ] && echo "GeoPhoto directory exists" && ls -l ~/GeoPhoto || echo "GeoPhoto directory does not exist"`
+- Если во время деплоя будут появляться сообщения об отсутствии каких либо зависимостей, то см. "Зависимости"
 
-То необходимо выполнить шаг "Клонирование репозитория"
+
 
 #### Клонирование репозитория
 (git должен быть установлен на устройстве)

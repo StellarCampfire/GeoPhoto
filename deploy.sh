@@ -23,16 +23,16 @@ if [ ! -d "$GEO_DIR" ]; then
     mkdir -p "$GEO_DIR"
 fi
 
-# Remove the old GeoPhoto.exe file if it exists, then move the new file
-if [ -f "${GEO_DIR}/GeoPhoto.exe" ]; then
-    rm "${GEO_DIR}/GeoPhoto.exe"
+# Remove the old GeoPhoto file if it exists, then move the new file
+if [ -f "${GEO_DIR}/GeoPhoto" ]; then
+    rm "${GEO_DIR}/GeoPhoto"
 fi
 
-mv dist/GeoPhoto.exe "$GEO_DIR/"
+mv dist/GeoPhoto "$GEO_DIR/"
 
 # Check if the file move was successful
 if [ $? -ne 0 ]; then
-    echo "Failed to move GeoPhoto.exe to $GEO_DIR"
+    echo "Failed to move GeoPhoto to $GEO_DIR"
     exit 1
 fi
 
@@ -42,7 +42,7 @@ DESKTOP_DIR="${HOME_DIR}/Desktop"
 # Create the .desktop file content
 DESKTOP_ENTRY="[Desktop Entry]
 Name=GeoPhoto
-Exec=${GEO_DIR}/GeoPhoto.exe
+Exec=${GEO_DIR}/GeoPhoto
 Type=Application
 Terminal=false
 Icon=${GEO_DIR}/GeoPhoto.ico"
